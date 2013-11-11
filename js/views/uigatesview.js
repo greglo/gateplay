@@ -4,8 +4,7 @@ var UIGatesView = Backbone.View.extend({
     },
 
     render: function() {
-        var canvas = this.el;
-
+        stage.clear();
         this.collection.each(function(model) {
             var view = new UIGateView({model:model});
             view.render();            

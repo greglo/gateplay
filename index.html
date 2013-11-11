@@ -12,6 +12,7 @@
 
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
     <script type="text/javascript" src="js/zepto.js"></script>
     <script type="text/javascript" src="js/foundation.min.js"></script>
     <script type="text/javascript" src="js/kinetic-v4.7.4.min.js"></script>
@@ -44,7 +45,7 @@
             lastMoved = pane;
           }
         });
-      }); 
+    });
     </script>
   
 
@@ -61,12 +62,38 @@
         var andGate = new UIGate({x: 100, y:100});
 
         var gates = new UIGates();
-        gates.add(andGate);
 
         var v = new UIGatesView({
             collection : gates
         });
         v.render();
+
+        var endPosition;
+
+        $(".gate").draggable({
+            revert: true,
+            revertDuration: 0,
+            scroll: false,
+            drag: function(event, ui) {
+                endPosition = $(this).position();
+            },
+        });
+
+        $("#workbench").droppable({ 
+            accept: ".gate", 
+            drop: function(event, ui) {
+                $(this).removeClass("border").removeClass("over");
+                var dropped = ui.draggable;
+                var droppedOn = $(this);
+                gates.add({x: endPosition.left - $("#workbench").offset().left, y: endPosition.top - $("#workbench").offset().top});
+           }, 
+            over: function(event, elem) {
+                $(this).addClass("over");
+            },
+            out: function(event, elem) {
+                $(this).removeClass("over");
+            }
+        });
       });
     </script>
 
@@ -110,7 +137,10 @@
 	<div class="row">
         <div class="large-2 columns sidebar sidebar-left">
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
-            <div id="pane-1" class="panel" style="display:none;"></div>
+            <div id="pane-1" class="panel" style="display:none;">
+                <div id="and" class="gate" style="width: 50px; height: 50px; background-color:#A82; z-index:1000"></div>
+                <div id="or" class="gate" style="width: 50px; height: 50px; background-color:#28A; z-index:1000"></div>
+            </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
             <div id="pane-2" class="panel" style="display:none;"></div>
             <div data-pane="pane-3" class="button dropdown slider" href="#">Memory</div>

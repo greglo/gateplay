@@ -8,15 +8,11 @@
     <title>GateSim</title>
 
     <link rel="stylesheet" href="css/foundation.css">
-    <link rel="stylesheet/less" type="text/css" href="css/foundation-changes.less">
+    <link rel="stylesheet" href="css/foundation-changes.css">
 
 
-    <script>
-    document.write('<script src=' +
-    ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-    '.js><\/script>')
-    </script>
-    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/zepto.js"></script>
     <script type="text/javascript" src="js/foundation.min.js"></script>
     <script type="text/javascript" src="js/kinetic-v4.7.4.min.js"></script>
     <script type="text/javascript" src="js/less-1.5.0.min.js"></script>
@@ -51,6 +47,19 @@
 
         flowerLayer.add(center);
         stage.add(flowerLayer);
+
+        var lastMoved;
+
+        $(".slider").click(function() {
+          var pane = $("#" + $(this).data("pane"));
+
+          if (!lastMoved || !lastMoved.is(pane)) {
+            if (lastMoved)
+              lastMoved.slideUp("fast", function(){});
+            pane.slideDown("fast", function() {});
+            lastMoved = pane;
+          }
+        });
       }); 
     </script>
   
@@ -115,15 +124,24 @@
     </div>
 
 	<div class="row">
-        <div class="large-2 columns sidebar-left height-100">
-            <div class="panel">
-
-            </div>
+        <div class="large-2 columns sidebar sidebar-left height-100">
+            <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
+            <div id="pane-1" style="display:none; height:200px;" >HELLO</div>
+            <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
+            <div id="pane-2" style="display:none; height:200px;" >HELLO</div>
+            <div data-pane="pane-3" class="button dropdown slider" href="#">Memory</div>
+            <div id="pane-3" style="display:none; height:200px;" >HELLO</div>
+            <div data-pane="pane-4" class="button dropdown slider" href="#">Timing</div>
+            <div id="pane-4" style="display:none; height:200px;" >HELLO</div>
+            <div data-pane="pane-5" class="button dropdown slider" href="#">Input/Output</div>
+            <div id="pane-5" style="display:none; height:200px;" >HELLO</div>
+            <div data-pane="pane-6" class="button dropdown slider" href="#">Custom</div>
+            <div id="pane-6" style="display:none; height:200px;" >HELLO</div>
         </div>
         <div class="large-8 columns">
             <div id="workbench" class="height-100" style="width:100%, height:100%;"></div>
         </div>
-        <div class="large-2 columns sidebar-right height-100">
+        <div class="large-2 columns sidebar sidebar-right height-100">
         </div>
 	</div>
 

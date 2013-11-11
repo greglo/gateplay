@@ -1,0 +1,25 @@
+body {
+    margin: 0;
+}
+
+.row {
+    max-width: 100%; !important
+}
+
+.sidebar {
+    background-color:#444;
+}
+
+.sidebar-left {
+    border-right: 1px solid #222;
+}
+
+.sidebar-left > .button.dropdown {
+    width:100%;
+    margin:0px;
+    margin-top:5px;
+}
+
+.sidebar-right {
+    border-left: 1px solid #222;
+}

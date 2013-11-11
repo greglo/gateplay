@@ -20,6 +20,15 @@ body {
     margin-top:5px;
 }
 
+.sidebar-left > .pane {
+    margin-top:5px;
+    padding:5px;
+    display:none;
+    background-color:#EEE;
+    border:1px solid #444;
+    height: 200px;
+}
+
 .sidebar-right {
     border-left: 1px solid #222;
 }

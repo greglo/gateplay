@@ -32,22 +32,6 @@
           height: $("#workbench").height()
         });
 
-        var flowerLayer = new Kinetic.Layer();
-
-       // build center
-      var center = new Kinetic.Circle({
-        x: 0,
-        y: 0,
-        radius: 20,
-        fill: 'yellow',
-        stroke: 'black',
-        strokeWidth: 4,
-        draggable: true
-      });
-
-        flowerLayer.add(center);
-        stage.add(flowerLayer);
-
         var lastMoved;
 
         $(".slider").click(function() {
@@ -74,7 +58,7 @@
     <script type="text/javascript" src="js/views/uigatesview.js"></script>
     <script type="text/javascript" type="text/javascript">
         $(function() {
-        var andGate = new UIGate({x: 0});
+        var andGate = new UIGate({x: 100, y:100});
 
         var gates = new UIGates();
         gates.add(andGate);
@@ -126,17 +110,17 @@
 	<div class="row">
         <div class="large-2 columns sidebar sidebar-left height-100">
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
-            <div id="pane-1" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-1" class="pane"></div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
-            <div id="pane-2" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-2" class="pane"></div>
             <div data-pane="pane-3" class="button dropdown slider" href="#">Memory</div>
-            <div id="pane-3" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-3" class="pane"></div>
             <div data-pane="pane-4" class="button dropdown slider" href="#">Timing</div>
-            <div id="pane-4" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-4" class="pane"></div>
             <div data-pane="pane-5" class="button dropdown slider" href="#">Input/Output</div>
-            <div id="pane-5" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-5" class="pane"></div>
             <div data-pane="pane-6" class="button dropdown slider" href="#">Custom</div>
-            <div id="pane-6" style="display:none; height:200px;" >HELLO</div>
+            <div id="pane-6" class="pane"></div>
         </div>
         <div class="large-8 columns">
             <div id="workbench" class="height-100" style="width:100%, height:100%;"></div>
@@ -145,48 +129,6 @@
         </div>
 	</div>
 
-  <script>
-  document.write('<script src=' +
-  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-  '.js><\/script>')
-  </script>
-  
-  <!--
-  
-  <script src="js/foundation/foundation.js"></script>
-  
-  <script src="js/foundation/foundation.alerts.js"></script>
-  
-  <script src="js/foundation/foundation.clearing.js"></script>
-  
-  <script src="js/foundation/foundation.cookie.js"></script>
-  
-  <script src="js/foundation/foundation.dropdown.js"></script>
-  
-  <script src="js/foundation/foundation.forms.js"></script>
-  
-  <script src="js/foundation/foundation.joyride.js"></script>
-  
-  <script src="js/foundation/foundation.magellan.js"></script>
-  
-  <script src="js/foundation/foundation.orbit.js"></script>
-  
-  <script src="js/foundation/foundation.reveal.js"></script>
-  
-  <script src="js/foundation/foundation.section.js"></script>
-  
-  <script src="js/foundation/foundation.tooltips.js"></script>
-  
-  <script src="js/foundation/foundation.topbar.js"></script>
-  
-  <script src="js/foundation/foundation.interchange.js"></script>
-  
-  <script src="js/foundation/foundation.placeholder.js"></script>
-  
-  <script src="js/foundation/foundation.abide.js"></script>
-  
-  -->
-  
   <script>
     $(document).foundation();
   </script>

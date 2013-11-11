@@ -1,5 +1,10 @@
 body {
     margin: 0;
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
+    background-color:#444;
 }
 
 .row {
@@ -11,7 +16,11 @@ body {
 }
 
 .sidebar-left {
-    border-right: 1px solid #222;
+    padding-right:0px;
+}
+
+.sidebar-left > .panel {
+    margin-bottom: 0px;
 }
 
 .sidebar-left > .button.dropdown {
@@ -20,15 +29,13 @@ body {
     margin-top:5px;
 }
 
-.sidebar-left > .pane {
-    margin-top:5px;
-    padding:5px;
-    display:none;
-    background-color:#EEE;
-    border:1px solid #444;
-    height: 200px;
+.sidebar-right {
+    padding-right:0px;
 }
 
-.sidebar-right {
-    border-left: 1px solid #222;
+#workbench {
+    background-color:#FFF;
+    margin:0px;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
 }

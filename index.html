@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>GateSim</title>
+
+    <link rel="stylesheet" href="css/foundation.css">
+    <link rel="stylesheet/less" type="text/css" href="css/foundation-changes.less">
+
+
+    <script>
+    document.write('<script src=' +
+    ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+    '.js><\/script>')
+    </script>
+    <script src="js/foundation.min.js"></script>
+    <script src="js/kinetic-v4.7.4.min.js"></script>
+    <script src="js/less-1.5.0.min.js"></script>
+
+    <script type="text/javascript">
+      $( window ).resize(function() {
+        $(".height-100").height($(window).height() - $(".top-bar").height());
+      });
+    </script>
+
+    <script type="text/javascript">
+      var stage;
+      $(function() {
+        stage = new Kinetic.Stage({
+          container: 'workbench',
+          width: $("#workbench").width(),
+          height: $("#workbench").height()
+        });
+
+        var flowerLayer = new Kinetic.Layer();
+
+       // build center
+      var center = new Kinetic.Circle({
+        x: 0,
+        y: 0,
+        radius: 20,
+        fill: 'yellow',
+        stroke: 'black',
+        strokeWidth: 4,
+        draggable: true
+      });
+
+        flowerLayer.add(center);
+        stage.add(flowerLayer);
+      }); 
+    </script>
+  
+
+    <script src="js/vendor/custom.modernizr.js"></script>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/backbone-min.js"></script>
+    <script src="js/backbone-min.js"></script>
+    <script src="js/models/uigate.js"></script>
+    <script src="js/collections/uigates.js"></script>
+    <script src="js/views/uigateview.js"></script>
+    <script src="js/views/uigatesview.js"></script>
+    <script type="text/javascript">
+        $(function() {
+        var andGate = new UIGate({x: 0});
+
+        var gates = new UIGates();
+        gates.add(andGate);
+
+        var v = new UIGatesView({
+            collection : gates
+        });
+        v.render();
+      });
+    </script>
+
+</head>
+
+<body>
+    <div class="fixed">
+        <nav class="top-bar">
+            <ul class="title-area">
+                <li class="name"><h1><a href="#">GateSim</a></h1></li>
+            </ul>
+
+            <section class="top-bar-section">
+                <ul class="left">
+                    <li class="divider hide-for-small"></li>
+                    <li class="has-dropdown">
+                        <a href="#">Tutorials</a>
+                        <ul class="dropdown">
+                            <li><label>Starting Out</label></li>
+                            <li><a href="#">Input and Output</a></li>
+                            <li><a href="#">Binary Gates</a></li>
+                            <li class="divider"></li>
+                            <li><label>Making Progress</label></li>
+                            <li><a href="#">Adders</a></li>
+                            <li><a href="#">Memory</a></li>
+                            <li class="divider"></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="right">
+                    <li class="divider show-for-small"></li>
+                    <li class="has-form">
+                        <a class="button" href="#">Button!</a>
+                    </li>
+                </ul>
+            </section>
+        </nav>
+    </div>
+
+	<div class="row">
+        <div class="large-2 columns sidebar-left height-100">
+            <div class="panel">
+
+            </div>
+        </div>
+        <div class="large-8 columns">
+            <div id="workbench" class="height-100" style="width:100%, height:100%;"></div>
+        </div>
+        <div class="large-2 columns sidebar-right height-100">
+        </div>
+	</div>
+
+  <script>
+  document.write('<script src=' +
+  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+  '.js><\/script>')
+  </script>
+  
+  <!--
+  
+  <script src="js/foundation/foundation.js"></script>
+  
+  <script src="js/foundation/foundation.alerts.js"></script>
+  
+  <script src="js/foundation/foundation.clearing.js"></script>
+  
+  <script src="js/foundation/foundation.cookie.js"></script>
+  
+  <script src="js/foundation/foundation.dropdown.js"></script>
+  
+  <script src="js/foundation/foundation.forms.js"></script>
+  
+  <script src="js/foundation/foundation.joyride.js"></script>
+  
+  <script src="js/foundation/foundation.magellan.js"></script>
+  
+  <script src="js/foundation/foundation.orbit.js"></script>
+  
+  <script src="js/foundation/foundation.reveal.js"></script>
+  
+  <script src="js/foundation/foundation.section.js"></script>
+  
+  <script src="js/foundation/foundation.tooltips.js"></script>
+  
+  <script src="js/foundation/foundation.topbar.js"></script>
+  
+  <script src="js/foundation/foundation.interchange.js"></script>
+  
+  <script src="js/foundation/foundation.placeholder.js"></script>
+  
+  <script src="js/foundation/foundation.abide.js"></script>
+  
+  -->
+  
+  <script>
+    $(document).foundation();
+  </script>
+</body>
+</html>

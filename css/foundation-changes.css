@@ -16,12 +16,20 @@ body {
 }
 
 .sidebar-left {
-    padding-right:0px;
 }
 
 .sidebar-left > .panel {
     margin-bottom: 0px;
     border: 1px solid #444;
+}
+
+.sidebar-left .gate {
+    height: 60px;
+    border: 1px solid #000;
+}
+
+.invalid {
+    background-color: #F00; !important
 }
 
 .sidebar-left > .button.dropdown {
@@ -31,7 +39,6 @@ body {
 }
 
 .sidebar-right {
-    padding-right:0px;
 }
 
 #workbench {

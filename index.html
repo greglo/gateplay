@@ -38,9 +38,14 @@
         $(".slider").click(function() {
           var pane = $("#" + $(this).data("pane"));
 
-          if (!lastMoved || !lastMoved.is(pane)) {
-            if (lastMoved)
-              lastMoved.slideUp("fast", function(){});
+          if (typeof(lastMoved) === "undefined" || !lastMoved) {
+            pane.slideDown("fast", function() {});
+            lastMoved = pane;
+          } else if (lastMoved.is(pane)) {
+            lastMoved.slideUp("fast", function(){});
+            lastMoved = null;
+          } else {
+            lastMoved.slideUp("fast", function(){});
             pane.slideDown("fast", function() {});
             lastMoved = pane;
           }
@@ -76,24 +81,31 @@
             scroll: false,
             cursor: "pointer",
             helper: 'clone',
+            zIndex: 1000,
+            start: function(event, ui) { 
+                $(this).draggable("option", "cursorAt", {
+                    left: Math.round(ui.helper.width() / 2),
+                    top: Math.round(ui.helper.height() / 2)
+                }); 
+                $(ui.helper).addClass("invalid");
+            },
             drag: function(event, ui) {
                 endPosition = {left: event.pageX, top: event.pageY};
-            },
+            }
         });
 
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                $(this).removeClass("border").removeClass("over");
-                var dropped = ui.draggable;
-                var droppedOn = $(this);
                 gates.add({x: endPosition.left - $("#workbench").offset().left, y: endPosition.top - $("#workbench").offset().top});
            }, 
-            over: function(event, elem) {
-                $(this).addClass("over");
+            over: function(event, ui) {
+                console.log($(ui.helper).attr('class'));
+                $(ui.helper).removeClass("invalid");
             },
-            out: function(event, elem) {
-                $(this).removeClass("over");
+            out: function(event, ui) {
+                console.log($(ui.helper).attr('class'));
+                $(ui.helper).addClass("invalid");
             }
         });
       });
@@ -140,8 +152,14 @@
         <div class="large-2 columns sidebar sidebar-left">
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">
-                <div id="and" class="gate" style="width: 50px; height: 50px; background-color:#A82; z-index:1000"></div>
-                <div id="or" class="gate" style="width: 50px; height: 50px; background-color:#28A; z-index:1000"></div>
+                <div class="row">
+                    <div id="and" class="large-6 columns gate"></div>
+                    <div id="or" class="large-6 columns gate"></div>
+                </div>
+                <div class="row">
+                    <div id="not" class="large-6 columns gate"></div>
+                    <div id="xor" class="large-6 columns gate"></div>
+                </div>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
             <div id="pane-2" class="panel" style="display:none;"></div>

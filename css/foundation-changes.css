@@ -21,6 +21,7 @@ body {
 
 .sidebar-left > .panel {
     margin-bottom: 0px;
+    border: 1px solid #444;
 }
 
 .sidebar-left > .button.dropdown {

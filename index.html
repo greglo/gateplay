@@ -74,8 +74,10 @@
             revert: true,
             revertDuration: 0,
             scroll: false,
+            cursor: "pointer",
+            helper: 'clone',
             drag: function(event, ui) {
-                endPosition = $(this).position();
+                endPosition = {left: event.pageX, top: event.pageY};
             },
         });
 

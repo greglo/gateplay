@@ -15,8 +15,7 @@
     <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
     <script type="text/javascript" src="js/zepto.js"></script>
     <script type="text/javascript" src="js/foundation.min.js"></script>
-    <script type="text/javascript" src="js/kinetic-v4.7.4.min.js"></script>
-    <script type="text/javascript" src="js/less-1.5.0.min.js"></script>
+    <script type="text/javascript" src="js/fabric.js"></script>
 
     <script type="text/javascript">
       $( window ).resize(function() {
@@ -25,12 +24,51 @@
     </script>
 
     <script type="text/javascript">
-      var stage;
+      var canvas;
+
+        //http://jsfiddle.net/fabricjs/S9sLu/
+
       $(function() {
-        stage = new Kinetic.Stage({
-          container: 'workbench',
-          width: $("#workbench").width(),
-          height: $("#workbench").height()
+        canvas = new fabric.Canvas('workbench', { selection: false });
+        var grid = 50;
+
+// create grid
+
+        for (var i = 0; i < (600 / grid); i++) {
+            canvas.add(new fabric.Line([ i * grid, 0, i * grid, 600], { stroke: '#ccc', selectable: false }));
+            canvas.add(new fabric.Line([ 0, i * grid, 600, i * grid], { stroke: '#ccc', selectable: false }))
+        }
+
+// add objects
+
+        canvas.add(new fabric.Rect({ 
+          left: 100, 
+          top: 100, 
+          width: 50, 
+          height: 50, 
+          fill: '#faa', 
+          originX: 'left', 
+          originY: 'top',
+          centeredRotation: true
+        }));
+
+        canvas.add(new fabric.Circle({ 
+          left: 300, 
+          top: 300, 
+          radius: 50, 
+          fill: '#9f9', 
+          originX: 'left', 
+          originY: 'top',
+          centeredRotation: true
+        }));
+
+// snap to grid
+
+        canvas.on('object:moving', function(options) { 
+          options.target.set({
+            left: Math.round(options.target.left / grid) * grid,
+            top: Math.round(options.target.top / grid) * grid
+          });
         });
 
         var lastMoved;
@@ -54,7 +92,7 @@
     </script>
   
 
-    <script type="text/javascript" src="js/vendor/custom.modernizr.js"></script>
+    <script type="text/javascript" src="js/custom.modernizr.js"></script>
     <script type="text/javascript" src="js/underscore-min.js"></script>
     <script type="text/javascript" src="js/backbone-min.js"></script>
     <script type="text/javascript" src="js/backbone-min.js"></script>
@@ -173,7 +211,7 @@
             <div id="pane-6" class="panel" style="display:none;"></div>
         </div>
         <div class="large-8 columns collpase">
-            <div id="workbench" class="height-100" style="width:100%"></div>
+            <canvas id="workbench" width="600" height="600"></div>
         </div>
         <div class="large-2 columns sidebar sidebar-right">
         </div>

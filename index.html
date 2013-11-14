@@ -18,51 +18,40 @@
     <script type="text/javascript" src="js/fabric.js"></script>
 
     <script type="text/javascript">
-      $( window ).resize(function() {
-        $(".height-100").height($(window).height() - $(".top-bar").height());
-      });
-    </script>
-
-    <script type="text/javascript">
-      var canvas;
-
         //http://jsfiddle.net/fabricjs/S9sLu/
+        var canvas;
 
-      $(function() {
-        canvas = new fabric.Canvas('workbench', { selection: false });
-        var grid = 50;
+        $(function() {
+            canvas = new fabric.Canvas('workbench', { selection: false });
+            var grid = 20;
+            var width = $("#workbench").width();
+            var height = $("#workbench").width();
 
-// create grid
-
-        for (var i = 0; i < (600 / grid); i++) {
-            canvas.add(new fabric.Line([ i * grid, 0, i * grid, 600], { stroke: '#ccc', selectable: false }));
-            canvas.add(new fabric.Line([ 0, i * grid, 600, i * grid], { stroke: '#ccc', selectable: false }))
-        }
-
-// add objects
+            for (var i = 0; i < (width / grid); i++)
+                canvas.add(new fabric.Line([i * grid, 0, i * grid, height], {
+                    stroke: '#ccc', 
+                    selectable: false,
+                    top: 0,
+                    left: i * grid
+                }));
+            for (var i = 0; i < (height / grid); i++)
+                canvas.add(new fabric.Line([ 0, i * grid, width, i * grid], {
+                    stroke: '#ccc', 
+                    selectable: false,
+                    top: i * grid,
+                    left: 0
+                }));
 
         canvas.add(new fabric.Rect({ 
-          left: 100, 
-          top: 100, 
-          width: 50, 
-          height: 50, 
+          left: grid*8, 
+          top: grid*6, 
+          width: grid*6, 
+          height: grid*5, 
           fill: '#faa', 
           originX: 'left', 
           originY: 'top',
           centeredRotation: true
         }));
-
-        canvas.add(new fabric.Circle({ 
-          left: 300, 
-          top: 300, 
-          radius: 50, 
-          fill: '#9f9', 
-          originX: 'left', 
-          originY: 'top',
-          centeredRotation: true
-        }));
-
-// snap to grid
 
         canvas.on('object:moving', function(options) { 
           options.target.set({
@@ -70,7 +59,11 @@
             top: Math.round(options.target.top / grid) * grid
           });
         });
+    });
+        </script>
 
+        <script type="text/javascript">
+        $(function() {
         var lastMoved;
 
         $(".slider").click(function() {
@@ -211,7 +204,12 @@
             <div id="pane-6" class="panel" style="display:none;"></div>
         </div>
         <div class="large-8 columns collpase">
-            <canvas id="workbench" width="600" height="600"></div>
+            <canvas id="workbench"></div>
+            <script type="text/javascript">
+                $("#workbench").attr("width", $("#workbench").parent().innerWidth());
+                $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
+                var x = 0;
+            </script>
         </div>
         <div class="large-2 columns sidebar sidebar-right">
         </div>

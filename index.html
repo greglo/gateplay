@@ -16,6 +16,7 @@
     <script type="text/javascript" src="js/zepto.js"></script>
     <script type="text/javascript" src="js/foundation.min.js"></script>
     <script type="text/javascript" src="js/fabric.js"></script>
+    <script type="text/javascript" src="js/views/templates/templatefactory.js"></script>
 
     <script type="text/javascript">
         //http://jsfiddle.net/fabricjs/S9sLu/
@@ -23,6 +24,8 @@
 
         $(function() {
             canvas = new fabric.Canvas('workbench', { selection: false });
+            canvas.hasControls = false;
+
             var grid = 20;
             var width = $("#workbench").width();
             var height = $("#workbench").width();
@@ -38,27 +41,33 @@
                 canvas.add(new fabric.Line([ 0, i * grid, width, i * grid], {
                     stroke: '#ccc', 
                     selectable: false,
-                    top: i * grid,
+                    top: i * grid   ,
                     left: 0
                 }));
 
-        canvas.add(new fabric.Rect({ 
-          left: grid*8, 
-          top: grid*6, 
-          width: grid*6, 
-          height: grid*5, 
-          fill: '#faa', 
-          originX: 'left', 
-          originY: 'top',
-          centeredRotation: true
-        }));
+            canvas.selection = true;
 
-        canvas.on('object:moving', function(options) { 
-          options.target.set({
-            left: Math.round(options.target.left / grid) * grid,
-            top: Math.round(options.target.top / grid) * grid
-          });
-        });
+            canvas.on('object:moving', function(options) { 
+                // Snap moving objects to grid
+                var left = Math.round(options.target.left / grid) * grid;
+                var top = Math.round(options.target.top / grid) * grid;
+
+                // Can't move things off the canvas
+                left = Math.max(left, 0);
+                left = Math.min(canvas.getWidth(), left + options.target.getWidth()) - options.target.getWidth();
+                top = Math.max(top, 0);
+                top = Math.min(canvas.getHeight(), top + options.target.getHeight()) - options.target.getHeight();
+
+                options.target.set({
+                    left: left,
+                    top: top
+                });
+            });
+
+            // Disable selection controls
+            canvas.on('selection:created', function(options) { 
+                options.target.hasControls = false;
+            });            
     });
         </script>
 
@@ -88,18 +97,17 @@
     <script type="text/javascript" src="js/custom.modernizr.js"></script>
     <script type="text/javascript" src="js/underscore-min.js"></script>
     <script type="text/javascript" src="js/backbone-min.js"></script>
-    <script type="text/javascript" src="js/backbone-min.js"></script>
-    <script type="text/javascript" src="js/models/uigate.js"></script>
-    <script type="text/javascript" src="js/collections/uigates.js"></script>
-    <script type="text/javascript" src="js/views/uigateview.js"></script>
-    <script type="text/javascript" src="js/views/uigatesview.js"></script>
+    <script type="text/javascript" src="js/models/gate.js"></script>
+    <script type="text/javascript" src="js/collections/gateset.js"></script>
+    <script type="text/javascript" src="js/views/gate.js"></script>
+    <script type="text/javascript" src="js/views/gateset.js"></script>
     <script type="text/javascript" type="text/javascript">
         $(function() {
-        var andGate = new UIGate({x: 100, y:100});
+        var andGate = new Gate({x: 100, y:100});
 
-        var gates = new UIGates();
+        var gates = new GateSet();
 
-        var v = new UIGatesView({
+        var v = new GateSetView({
             collection : gates
         });
         v.render();
@@ -128,7 +136,11 @@
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                gates.add({x: endPosition.left - $("#workbench").offset().left, y: endPosition.top - $("#workbench").offset().top});
+                gates.add({x: endPosition.left - $("#workbench").offset().left, 
+                    y: endPosition.top - $("#workbench").offset().top,
+                    templateId: "and"
+                });
+                console.log(gates);
            }, 
             over: function(event, ui) {
                 console.log($(ui.helper).attr('class'));

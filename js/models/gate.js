@@ -1,4 +1,4 @@
-var UIGate = Backbone.Model.extend({
+var Gate = Backbone.Model.extend({
     defaults: function() {
         return {
             x: 0,

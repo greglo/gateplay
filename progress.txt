@@ -7,3 +7,11 @@
     Use Fabric.js
         Because I found the following JSFiddle which has exactly what I want, and its simple:
         http://jsfiddle.net/fabricjs/S9sLu/
+
+    Implement snap to grid
+
+15th Nov:
+    Disable rotations
+    Enable selections
+    Stop objects being pulled off canvas
+    Refactor

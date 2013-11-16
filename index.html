@@ -136,18 +136,16 @@
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                gates.add({x: endPosition.left - $("#workbench").offset().left, 
+                gates.add({
+                    x: endPosition.left - $("#workbench").offset().left, 
                     y: endPosition.top - $("#workbench").offset().top,
-                    templateId: "and"
+                    templateId: $(ui.helper).data("templateid")
                 });
-                console.log(gates);
            }, 
             over: function(event, ui) {
-                console.log($(ui.helper).attr('class'));
                 $(ui.helper).removeClass("invalid");
             },
             out: function(event, ui) {
-                console.log($(ui.helper).attr('class'));
                 $(ui.helper).addClass("invalid");
             }
         });
@@ -196,12 +194,12 @@
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">
                 <div class="row">
-                    <div id="and" class="large-6 columns gate"></div>
-                    <div id="or" class="large-6 columns gate"></div>
+                    <div data-templateid="and" class="large-6 columns gate"></div>
+                    <div data-templateid="wire" class="large-6 columns gate"></div>
                 </div>
                 <div class="row">
-                    <div id="not" class="large-6 columns gate"></div>
-                    <div id="xor" class="large-6 columns gate"></div>
+                    <div data-templateid="not" class="large-6 columns gate"></div>
+                    <div data-templateid="xor" class="large-6 columns gate"></div>
                 </div>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>

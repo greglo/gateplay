@@ -47,20 +47,43 @@
 
             canvas.selection = true;
 
+            // Snap moving objects to grid
             canvas.on('object:moving', function(options) { 
-                // Snap moving objects to grid
-                var left = Math.round(options.target.left / grid) * grid;
-                var top = Math.round(options.target.top / grid) * grid;
+                var target = options.target;
+                var width = target.getWidth();
+                var height = target.getHeight();
+
+                // Objects can be defined by their top left corner, their center, etc...
+                // We do our calculations with their top left corner values
+                var normalisedLeft;
+                var normalisedTop;
+                var shiftLeft;
+                var shiftTop;
+
+                // Normalise according by moving all positions into our coordinate system
+                if (options.target.originX == "center") {
+                    normalisedLeft = Math.round((2 * options.target.left - width) / (2 * grid)) * grid;
+                    normalisedTop = Math.round((2 * options.target.top - height) / (2 * grid)) * grid;
+                    shiftLeft = width / 2 + 0.5;
+                    shiftTop = height / 2 + 0.5;
+                }
+                else {
+                    normalisedLeft = Math.round(options.target.left / grid) * grid;
+                    normalisedTop = Math.round(options.target.top / grid) * grid;
+                    shiftLeft = 0;
+                    shiftTop = 0;
+                }
 
                 // Can't move things off the canvas
-                left = Math.max(left, 0);
-                left = Math.min(canvas.getWidth(), left + options.target.getWidth()) - options.target.getWidth();
-                top = Math.max(top, 0);
-                top = Math.min(canvas.getHeight(), top + options.target.getHeight()) - options.target.getHeight();
+                normalisedLeft = Math.max(normalisedLeft, 0);
+                normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + width) - width;
+                normalisedTop = Math.max(normalisedTop, 0);
+                normalisedTop = Math.min(canvas.getHeight(), normalisedTop + height) - height;
 
+                // Apply a shift back into the objects coordinate system
                 options.target.set({
-                    left: left,
-                    top: top
+                    left: normalisedLeft + shiftLeft,
+                    top: normalisedTop + shiftTop
                 });
             });
 

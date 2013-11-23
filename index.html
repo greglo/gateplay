@@ -28,27 +28,12 @@
 
             var grid = 20;
             var width = $("#workbench").width();
-            var height = $("#workbench").width();
-
-            for (var i = 0; i < (width / grid); i++)
-                canvas.add(new fabric.Line([i * grid, 0, i * grid, height], {
-                    stroke: '#ccc', 
-                    selectable: false,
-                    top: 0,
-                    left: i * grid
-                }));
-            for (var i = 0; i < (height / grid); i++)
-                canvas.add(new fabric.Line([ 0, i * grid, width, i * grid], {
-                    stroke: '#ccc', 
-                    selectable: false,
-                    top: i * grid   ,
-                    left: 0
-                }));
+            var height = $("#workbench").height();
 
             canvas.selection = true;
 
             // Snap moving objects to grid
-            canvas.on('object:moving', function(options) { 
+            canvas.on('object:moving', function(options) {
                 var target = options.target;
                 var width = target.getWidth();
                 var height = target.getHeight();
@@ -90,8 +75,9 @@
             // Disable selection controls
             canvas.on('selection:created', function(options) { 
                 options.target.hasControls = false;
+                console.log(options.target);
             });            
-    });
+        });
         </script>
 
         <script type="text/javascript">
@@ -120,18 +106,23 @@
     <script type="text/javascript" src="js/custom.modernizr.js"></script>
     <script type="text/javascript" src="js/underscore-min.js"></script>
     <script type="text/javascript" src="js/backbone-min.js"></script>
-    <script type="text/javascript" src="js/models/gate.js"></script>
-    <script type="text/javascript" src="js/collections/gateset.js"></script>
-    <script type="text/javascript" src="js/views/gate.js"></script>
-    <script type="text/javascript" src="js/views/gateset.js"></script>
+    <script type="text/javascript" src="js/models/component.js"></script>
+    <script type="text/javascript" src="js/collections/componentset.js"></script>
+    <script type="text/javascript" src="js/models/circuit.js"></script>
+    <script type="text/javascript" src="js/views/componentview.js"></script>
+    <script type="text/javascript" src="js/views/componentsetview.js"></script>
+    <script type="text/javascript" src="js/views/circuitview.js"></script>
     <script type="text/javascript" type="text/javascript">
         $(function() {
-        var andGate = new Gate({x: 100, y:100});
+        var andGate = new Component({x: 100, y:100});
 
-        var gates = new GateSet();
+        var circuit = new Circuit();
 
-        var v = new GateSetView({
-            collection : gates
+        var v = new CircuitView({
+            width: $("#workbench").width(),
+            height: $("#workbench").height(),
+            gridSize: 20,
+            circuit: circuit
         });
         v.render();
 
@@ -159,7 +150,7 @@
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                gates.add({
+                circuit.addComponent({
                     x: endPosition.left - $("#workbench").offset().left, 
                     y: endPosition.top - $("#workbench").offset().top,
                     templateId: $(ui.helper).data("templateid")

@@ -15,3 +15,8 @@
     Enable selections
     Stop objects being pulled off canvas
     Refactor
+
+
+23rd Nov:
+    Experiment with collision detection (unsuccessfully)
+    Implement CircuitView.js

@@ -30,16 +30,16 @@ var TemplateFactory = {
 
             case "and":
                 var wire = this.getTemplate("wire");
-                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize}));
-                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3}));
-                objects.push(fabric.util.object.clone(wire).set({left:outerWidth - boxSize, top: boxSize * 2}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize - 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3- 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerWidth - boxSize, top: boxSize * 2- 0.5}));
                 objects.push(new fabric.Ellipse({
                     left: innerLeft + innerWidth * 0.2,
                     top: innerTop,
                     fill: "white",
                     rx: innerWidth * 0.4,
                     ry: innerHeight * 0.5,
-                    strokeWidth: 5,
+                    strokeWidth: strokeWidth,
                     stroke: gateColor
                 }));
                 var points = [];

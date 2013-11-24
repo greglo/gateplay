@@ -1,10 +1,10 @@
 var TemplateFactory = {
     getTemplate: function(templateId) {
-        var boxSize = 20; // TODO
+        var boxSize = 120; // TODO
 
         var wireColor = "rgb(70, 70, 70)";
         var gateColor = "rgb(70, 70, 70)";
-        var strokeWidth = 5;
+        var strokeWidth = boxSize / 4;
         
         var outerLeft = 0;
         var innerLeft = boxSize / 2;

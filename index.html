@@ -18,68 +18,6 @@
     <script type="text/javascript" src="js/fabric.js"></script>
     <script type="text/javascript" src="js/views/templates/templatefactory.js"></script>
 
-    <script type="text/javascript">
-        //http://jsfiddle.net/fabricjs/S9sLu/
-        var canvas;
-
-        $(function() {
-            canvas = new fabric.Canvas('workbench', { selection: false });
-            canvas.hasControls = false;
-
-            var grid = 20;
-            var width = $("#workbench").width();
-            var height = $("#workbench").height();
-
-            canvas.selection = true;
-
-            // Snap moving objects to grid
-            canvas.on('object:moving', function(options) {
-                var target = options.target;
-                var width = target.getWidth();
-                var height = target.getHeight();
-
-                // Objects can be defined by their top left corner, their center, etc...
-                // We do our calculations with their top left corner values
-                var normalisedLeft;
-                var normalisedTop;
-                var shiftLeft;
-                var shiftTop;
-
-                // Normalise according by moving all positions into our coordinate system
-                if (options.target.originX == "center") {
-                    normalisedLeft = Math.round((2 * options.target.left - width) / (2 * grid)) * grid;
-                    normalisedTop = Math.round((2 * options.target.top - height) / (2 * grid)) * grid;
-                    shiftLeft = width / 2 + 0.5;
-                    shiftTop = height / 2 + 0.5;
-                }
-                else {
-                    normalisedLeft = Math.round(options.target.left / grid) * grid;
-                    normalisedTop = Math.round(options.target.top / grid) * grid;
-                    shiftLeft = 0;
-                    shiftTop = 0;
-                }
-
-                // Can't move things off the canvas
-                normalisedLeft = Math.max(normalisedLeft, 0);
-                normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + width) - width;
-                normalisedTop = Math.max(normalisedTop, 0);
-                normalisedTop = Math.min(canvas.getHeight(), normalisedTop + height) - height;
-
-                // Apply a shift back into the objects coordinate system
-                options.target.set({
-                    left: normalisedLeft + shiftLeft,
-                    top: normalisedTop + shiftTop
-                });
-            });
-
-            // Disable selection controls
-            canvas.on('selection:created', function(options) { 
-                options.target.hasControls = false;
-                console.log(options.target);
-            });            
-        });
-        </script>
-
         <script type="text/javascript">
         $(function() {
         var lastMoved;
@@ -114,17 +52,16 @@
     <script type="text/javascript" src="js/views/circuitview.js"></script>
     <script type="text/javascript" type="text/javascript">
         $(function() {
-        var andGate = new Component({x: 100, y:100});
-
-        var circuit = new Circuit();
+        var circuit = new Circuit({
+            width: Math.floor($("#workbench").width() / 20),
+            height: Math.floor($("#workbench").height() / 20)
+        });
 
         var v = new CircuitView({
-            width: $("#workbench").width(),
-            height: $("#workbench").height(),
+            el: $("#workbench"),
             gridSize: 20,
             circuit: circuit
         });
-        v.render();
 
         var endPosition;
 
@@ -232,7 +169,6 @@
             <script type="text/javascript">
                 $("#workbench").attr("width", $("#workbench").parent().innerWidth());
                 $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
-                var x = 0;
             </script>
         </div>
         <div class="large-2 columns sidebar sidebar-right">

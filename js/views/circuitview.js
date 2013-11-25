@@ -2,15 +2,19 @@ var CircuitView = Backbone.View.extend({
     initialize: function(options) {
         this.options = options;
         this.options.components = options.circuit.get("components");
-        this.options.components.on("all", this.render, this);
-
         this.width = Math.floor(this.$el.width() / this.options.gridSize);
         this.height = Math.floor(this.$el.height() / this.options.gridSize);
-        this.$el.width(this.width);
-        this.$el.height(this.height);
-        console.log("That called");
+        
+
+        this.options.components.on("all", this.render, this);
 
         var gridSize = this.options.gridSize;
+        
+        this.$el.attr("width", this.width * gridSize);
+        this.$el.attr("height", this.height * gridSize);
+        console.log(this.height);
+        console.log(this.$el.height());
+
 
         canvas = new fabric.Canvas('workbench', { 
             hasControls: false,

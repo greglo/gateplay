@@ -1,6 +1,6 @@
 var TemplateFactory = {
     getTemplate: function(templateId) {
-        var boxSize = 120; // TODO
+        var boxSize = 120; 
 
         var wireColor = "rgb(70, 70, 70)";
         var gateColor = "rgb(70, 70, 70)";
@@ -28,7 +28,27 @@ var TemplateFactory = {
                 }));
                 break;
 
-            case "and":
+            case "or":
+                var wire = this.getTemplate("wire");
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize - 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft + boxSize, top: boxSize - 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3- 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerLeft + boxSize, top: boxSize * 3- 0.5}));
+                objects.push(fabric.util.object.clone(wire).set({left:outerWidth - boxSize, top: boxSize * 2- 0.5}));
+                // We do slightly more than a full path around the shape, to get pretty edges in the top left
+                var path = new fabric.Path(
+                    "M " + (2 * boxSize) + "," + 0 + 
+                    "L " + 0 + "," + 0 + 
+                    "C " + (1.25 * boxSize) + "," + (2 * boxSize) + "," + (1.25 * boxSize) + "," + (innerHeight - 2 * boxSize) + "," + 0 + "," + innerHeight + 
+                    "L " + (boxSize * 2) + "," + innerHeight +
+                    "C " + (4 * boxSize) + "," + (innerHeight) + "," + (6 * boxSize) + "," + (innerHeight - 2 * boxSize) + "," + innerWidth + "," + (innerHeight / 2) + 
+                    "C " + (6 * boxSize) + "," + (2 * boxSize) + "," + (4 * boxSize) + ",0," + (2 * boxSize) + ",0" + 
+                    "L " + 0 + "," + 0
+                    );
+                objects.push(path.set({left:innerLeft, top:outerTop, strokeWidth: strokeWidth, stroke:gateColor, fill:"white"}));
+                break;
+
+                case "and":
                 var wire = this.getTemplate("wire");
                 objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize - 0.5}));
                 objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3- 0.5}));

@@ -52,14 +52,16 @@
     <script type="text/javascript" src="js/views/circuitview.js"></script>
     <script type="text/javascript" type="text/javascript">
         $(function() {
+            var gridSize = 16;
+
         var circuit = new Circuit({
-            width: Math.floor($("#workbench").width() / 20),
-            height: Math.floor($("#workbench").height() / 20)
+            width: Math.floor($("#workbench").width() / gridSize),
+            height: Math.floor($("#workbench").height() / gridSize)
         });
 
         var v = new CircuitView({
             el: $("#workbench"),
-            gridSize: 20,
+            gridSize: gridSize,
             circuit: circuit
         });
 
@@ -87,11 +89,11 @@
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                circuit.addComponent({
-                    x: endPosition.left - $("#workbench").offset().left, 
-                    y: endPosition.top - $("#workbench").offset().top,
+                circuit.addComponent(new Component({
+                    x: Math.floor((endPosition.left - $("#workbench").offset().left) / gridSize), 
+                    y: Math.floor((endPosition.top - $("#workbench").offset().top) / gridSize),
                     templateId: $(ui.helper).data("templateid")
-                });
+                }));
            }, 
             over: function(event, ui) {
                 $(ui.helper).removeClass("invalid");
@@ -146,7 +148,7 @@
             <div id="pane-1" class="panel" style="display:none;">
                 <div class="row">
                     <div data-templateid="and" class="large-6 columns gate"></div>
-                    <div data-templateid="wire" class="large-6 columns gate"></div>
+                    <div data-templateid="or" class="large-6 columns gate"></div>
                 </div>
                 <div class="row">
                     <div data-templateid="not" class="large-6 columns gate"></div>

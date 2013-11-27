@@ -6,12 +6,13 @@ var ComponentSetView = Backbone.View.extend({
     render: function() {
         var model = this.model;
         var options = this.options;
+        var i = 1;
         this.options.components.each(function(model) {
             var view = new ComponentView({
                 options: options,
                 model: model
             });
-            view.render(canvas);            
+            view.render(canvas);        
         });
     }
 });

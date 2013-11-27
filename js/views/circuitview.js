@@ -6,14 +6,12 @@ var CircuitView = Backbone.View.extend({
         this.height = Math.floor(this.$el.height() / this.options.gridSize);
         
 
-        this.options.components.on("all", this.render, this);
+        this.options.components.on("add remove", this.render, this);
 
         var gridSize = this.options.gridSize;
         
         this.$el.attr("width", this.width * gridSize);
         this.$el.attr("height", this.height * gridSize);
-        console.log(this.height);
-        console.log(this.$el.height());
 
 
         canvas = new fabric.Canvas('workbench', { 
@@ -21,14 +19,19 @@ var CircuitView = Backbone.View.extend({
             selection: true
         });
 
+        var lastValidSelectionPosition = {};
+
         // Disable selection controls
         canvas.on('selection:created', function(meta) { 
             meta.target.hasControls = false;
+            lastValidSelectionPosition.x = meta.target.getLeft();
+            lastValidSelectionPosition.y = meta.target.getTop();
         });     
 
 
         // Snap moving objects to grid
         // http://jsfiddle.net/fabricjs/S9sLu/
+        var circuitView = this;
         canvas.on('object:moving', function(meta) {
             var target = meta.target;
             var width = target.getWidth();
@@ -61,17 +64,69 @@ var CircuitView = Backbone.View.extend({
             normalisedTop = Math.max(normalisedTop, 0);
             normalisedTop = Math.min(canvas.getHeight(), normalisedTop + height) - height;
 
-            // Apply a shift back into the objects coordinate system
-            target.set({
-                left: normalisedLeft + shiftLeft,
-                top: normalisedTop + shiftTop
-            });
+            // New UI coordinates in the objects coordinate system
+            var newTop = normalisedLeft + shiftLeft;
+            var newLeft = normalisedTop + shiftTop;
+
+            // New model coordinates
+            var newX = Math.round(normalisedLeft / gridSize);
+            var newY =  Math.round(normalisedTop / gridSize);
+
+            var acceptMove;
+
+            if (typeof target.id != "undefined") {
+                // Individual component has been moved
+                var newX = Math.round(normalisedLeft / gridSize);
+                var newY =  Math.round(normalisedTop / gridSize);
+                acceptMove = options.circuit.moveComponent(target.id, newX, newY);
+
+                if (acceptMove) {
+                    target.set({
+                        left: normalisedLeft + shiftLeft,
+                        top: normalisedTop + shiftTop
+                    });
+                } else {
+                    var model = circuitView.options.circuit.get("components").get(target.id)
+                    target.set({
+                        left: model.get("x") * gridSize,
+                        top: model.get("y") * gridSize
+                    });
+                }
+
+            } else if (typeof target.objects != "undefined") {
+                // Component selection has been moved
+                var transformations = [];
+                _.each(target.objects, function(c) {
+                    var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / gridSize);
+                    var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / gridSize);
+
+                    transformations.push({
+                        id: c.id,
+                        newX: newX,
+                        newY: newY
+                    });
+                });
+                acceptMove = options.circuit.moveSelection(transformations)
+
+                if (acceptMove) {
+                    lastValidSelectionPosition.x = normalisedLeft + shiftLeft;
+                    lastValidSelectionPosition.y = normalisedTop + shiftTop;
+                }
+
+                target.set({
+                    left: lastValidSelectionPosition.x,
+                    top: lastValidSelectionPosition.y
+                });
+            }
+            else
+                throw "Unrecognised object type"
         });
 
         this.render();
     },
 
     render: function() {
+        console.log("Redraw");
         // Clear old canvas
         canvas.clear();
 

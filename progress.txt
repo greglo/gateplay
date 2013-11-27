@@ -20,3 +20,12 @@
 23rd Nov:
     Experiment with collision detection (unsuccessfully)
     Implement CircuitView.js
+
+24th Nov:
+    Size canvas to a integral number of blocks
+
+25th Nov:
+    Moving objects and selections now updates the model
+
+26th Nov:
+    Implement (buggy) collision detection

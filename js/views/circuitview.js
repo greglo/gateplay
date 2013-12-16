@@ -19,23 +19,45 @@ var CircuitView = Backbone.View.extend({
             selection: true
         });
 
-        var lastValidSelectionPosition = {};
+        var selection = null;
+        var mouseDown = false;
+        var lastMoveValid = false;
+        var selectionStartPosition = {};
 
-        // Disable selection controls
-        canvas.on('selection:created', function(meta) { 
-            meta.target.hasControls = false;
-            lastValidSelectionPosition.x = meta.target.getLeft();
-            lastValidSelectionPosition.y = meta.target.getTop();
+        canvas.on('mouse:down', function(meta) { 
+            mouseDown = true;
+        });    
+
+        var circuitView = this;
+        canvas.on('mouse:up', function(meta) { 
+            mouseDown = false;
+            if (lastMoveValid) {
+                selectionStartPosition.x = selection.getLeft();
+                selectionStartPosition.y = selection.getTop();
+            } else {
+                selection.set({
+                    left: selectionStartPosition.x,
+                    top: selectionStartPosition.y,
+                });
+                console.log("Setting selection back");
+            }
+        });    
+
+        canvas.on('object:selected', function(meta) {
+            selection = meta.target;
+            selection.hasControls = false;
+            selectionStartPosition.x = selection.getLeft();
+            selectionStartPosition.y = selection.getTop();
         });     
 
 
         // Snap moving objects to grid
         // http://jsfiddle.net/fabricjs/S9sLu/
-        var circuitView = this;
         canvas.on('object:moving', function(meta) {
-            var target = meta.target;
-            var width = target.getWidth();
-            var height = target.getHeight();
+            if (mouseDown == true && selection != null) {
+            var target = selection;
+            var targetWidth = target.getWidth();
+            var targetHeight = target.getHeight();
 
             // Objects can be defined by their top left corner, their center, etc...
             // We do our calculations with their top left corner values
@@ -44,52 +66,52 @@ var CircuitView = Backbone.View.extend({
             var shiftLeft;
             var shiftTop;
 
-            // Normalise according by moving all positions into our coordinate system
+            // Normalise according by moving all positions into a top-left coordinate system
             if (target.originX == "center") {
-                normalisedLeft = Math.round((2 * target.left - width) / (2 * gridSize)) * gridSize;
-                normalisedTop = Math.round((2 * target.top - height) / (2 * gridSize)) * gridSize;
-                shiftLeft = width / 2;
-                shiftTop = height / 2;
+                normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * gridSize)) * gridSize;
+                normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * gridSize)) * gridSize;
+                shiftLeft = targetWidth / 2;
+                shiftTop = targetHeight / 2;
             }
-            else {
+            else if (target.originX == "left") {
                 normalisedLeft = Math.round(target.left / gridSize) * gridSize;
                 normalisedTop = Math.round(target.top / gridSize) * gridSize;
                 shiftLeft = 0;
                 shiftTop = 0;
             }
+            else
+                throw "Unrecognised object type"
 
             // Can't move things off the canvas
             normalisedLeft = Math.max(normalisedLeft, 0);
-            normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + width) - width;
+            normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
             normalisedTop = Math.max(normalisedTop, 0);
-            normalisedTop = Math.min(canvas.getHeight(), normalisedTop + height) - height;
+            normalisedTop = Math.min(canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
 
             // New UI coordinates in the objects coordinate system
-            var newTop = normalisedLeft + shiftLeft;
-            var newLeft = normalisedTop + shiftTop;
+            var newLeft = normalisedLeft + shiftLeft;
+            var newTop = normalisedTop + shiftTop;
 
-            // New model coordinates
-            var newX = Math.round(normalisedLeft / gridSize);
-            var newY =  Math.round(normalisedTop / gridSize);
+            // Let users move objects anywhere on the grid for now
+            target.set({
+                left: newLeft,
+                top: newTop
+            });
 
-            var acceptMove;
 
             if (typeof target.id != "undefined") {
                 // Individual component has been moved
-                var newX = Math.round(normalisedLeft / gridSize);
-                var newY =  Math.round(normalisedTop / gridSize);
-                acceptMove = options.circuit.moveComponent(target.id, newX, newY);
+                var newX = normalisedLeft / gridSize;
+                var newY = normalisedTop / gridSize;
+                lastMoveValid = options.circuit.moveComponent(target.id, newX, newY);
 
-                if (acceptMove) {
+                if (lastMoveValid) {
                     target.set({
-                        left: normalisedLeft + shiftLeft,
-                        top: normalisedTop + shiftTop
+                        fill: "white"
                     });
                 } else {
-                    var model = circuitView.options.circuit.get("components").get(target.id)
                     target.set({
-                        left: model.get("x") * gridSize,
-                        top: model.get("y") * gridSize
+                        fill: "red"
                     });
                 }
 
@@ -106,20 +128,21 @@ var CircuitView = Backbone.View.extend({
                         newY: newY
                     });
                 });
-                acceptMove = options.circuit.moveSelection(transformations)
+                lastMoveValid = options.circuit.moveSelection(transformations)
 
-                if (acceptMove) {
-                    lastValidSelectionPosition.x = normalisedLeft + shiftLeft;
-                    lastValidSelectionPosition.y = normalisedTop + shiftTop;
+                if (lastMoveValid) {
+                    target.set({
+                        fill: "white"
+                    });
+                } else {
+                    target.set({
+                        fill: "red",
+                    });
                 }
-
-                target.set({
-                    left: lastValidSelectionPosition.x,
-                    top: lastValidSelectionPosition.y
-                });
             }
             else
                 throw "Unrecognised object type"
+        }
         });
 
         this.render();

@@ -18,7 +18,6 @@ var Circuit = Backbone.Model.extend({
     },
 
     addComponent: function(c) {
-        console.log(c);
         var points = this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
         var valid = this._areValidPoints(points, [c.id]);
         
@@ -49,10 +48,14 @@ var Circuit = Backbone.Model.extend({
         var pointsByTransform = [];
         var validIds = [];
 
+        // A component can move into the space previously occupied by itself, 
+        //  or another component in the same transformation group
         for (var i = 0; i < transformations.length; i++) {
             validIds.push(transformations[i].id);
         }
 
+        // Ensure that no transformation moves a component onto another component that is not in the same
+        //  transformation group
         for (var i = 0; i < transformations.length; i++) {
             var t = transformations[i];
             var c = components.get(t.id);
@@ -63,6 +66,7 @@ var Circuit = Backbone.Model.extend({
             if (!valid)
                 return false;
 
+            // Cache the points we calculated, since we will need them again if every transformation is valid
             pointsByTransform[i] = points;
         }
 
@@ -71,9 +75,9 @@ var Circuit = Backbone.Model.extend({
             var c = components.get(t.id);
             var points = pointsByTransform[i]
             var oldPoints = this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
-    
-            this._setPoints(oldPoints, -1);
-            this._setPoints(points, c.id);
+
+            this._clearPoints(oldPoints, t.id);
+            this._setPoints(points, t.id);
             c.set("x", t.newX);
             c.set("y", t.newY);
         }
@@ -94,11 +98,21 @@ var Circuit = Backbone.Model.extend({
         return points;
     },
 
-    _setPoints: function(points, id) {
+
+    _clearPoints: function(points, id) {
         var map = this.get("locationMap");
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
-            map[point.x][point.y] = id;
+            if (map[point.x][point.y] == id)
+                map[point.x][point.y] = -1;
+        }
+    },
+
+    _setPoints: function(points, newId) {
+        var map = this.get("locationMap");
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            map[point.x][point.y] = newId;
         }
     },
 

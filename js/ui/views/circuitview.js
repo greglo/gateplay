@@ -39,6 +39,7 @@ var CircuitView = Backbone.View.extend({
                     left: selectionStartPosition.x,
                     top: selectionStartPosition.y,
                 });
+                // Call options.circuit.moveSelection
                 console.log("Setting selection back");
             }
         });    

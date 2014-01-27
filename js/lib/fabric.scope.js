@@ -1,5 +1,5 @@
 define([
-    "lib/fabric.min",
+    "lib/fabric",
 ], function() {
     return fabric
 });

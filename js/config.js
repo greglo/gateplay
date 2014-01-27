@@ -9,7 +9,7 @@ require.config({
         foundation: 'lib/foundation.min',
         modernizr: "lib/custom.modernizr",
         backbone: 'lib/backbone-min',
-        fabric: "lib/fabric.amd",
+        fabric: "lib/fabric.scope",
     },
 
     shim: {

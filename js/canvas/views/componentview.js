@@ -21,7 +21,7 @@ define([
             // We associate the canvas element with its backbone model
             template.id = this.model.get("id");
 
-            canvas.add(template);
+            this.options.canvas.add(template);
         }
     });
 });

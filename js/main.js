@@ -3,9 +3,10 @@ define([
     "jquery-ui",
     "foundation",
     "canvas/models/circuit",
+    "canvas/models/component",
     "canvas/views/circuitview"
 ], 
-function($, ui, Foundation, Circuit, CircuitView) {
+function($, ui, Foundation, Circuit, Component, CircuitView) {
     var GRID_SIZE = 16;
 
     $(function() {
@@ -15,6 +16,7 @@ function($, ui, Foundation, Circuit, CircuitView) {
         $("#workbench").attr("width", $("#workbench").parent().innerWidth());
         $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
         
+        // Create the canvas model and view
         var circuit = new Circuit({
             width: Math.floor($("#workbench").width() / GRID_SIZE),
             height: Math.floor($("#workbench").height() / GRID_SIZE)
@@ -71,8 +73,8 @@ function($, ui, Foundation, Circuit, CircuitView) {
             accept: ".gate", 
             drop: function(event, ui) {
                 circuit.addComponent(new Component({
-                    x: Math.floor((endPosition.left - $("#workbench").offset().left) / gridSize), 
-                    y: Math.floor((endPosition.top - $("#workbench").offset().top) / gridSize),
+                    x: Math.floor((endPosition.left - $("#workbench").offset().left) / GRID_SIZE), 
+                    y: Math.floor((endPosition.top - $("#workbench").offset().top) / GRID_SIZE),
                     templateId: $(ui.helper).data("templateid")
                 }));
            }, 

@@ -1,16 +1,16 @@
 define([
+    "underscore",
     "backbone",
     "fabric",
     "canvas/models/circuit",
     "canvas/views/componentsetview"
-], function(Backbone, fabric, Circuit, ComponentSetView) {
+], function(_, Backbone, fabric, Circuit, ComponentSetView) {
     return Backbone.View.extend({
         initialize: function(options) {
             this.options = options;
             this.options.components = options.circuit.get("components");
             this.width = Math.floor(this.$el.width() / this.options.gridSize);
             this.height = Math.floor(this.$el.height() / this.options.gridSize);
-            
 
             this.options.components.on("add remove", this.render, this);
 
@@ -24,6 +24,7 @@ define([
                 hasControls: false,
                 selection: true
             });
+            var canvas = this.canvas;
 
             var selection = null;
             var mouseDown = false;
@@ -91,9 +92,9 @@ define([
 
                 // Can't move things off the canvas
                 normalisedLeft = Math.max(normalisedLeft, 0);
-                normalisedLeft = Math.min(gridSize.getWidth(), normalisedLeft + targetWidth) - targetWidth;
+                normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
                 normalisedTop = Math.max(normalisedTop, 0);
-                normalisedTop = Math.min(gridSize.getHeight(), normalisedTop + targetHeight) - targetHeight;
+                normalisedTop = Math.min(canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
 
                 // New UI coordinates in the objects coordinate system
                 var newLeft = normalisedLeft + shiftLeft;
@@ -177,9 +178,12 @@ define([
                     top: i * gridSize - 0.5,
                     left: 0
                 }));
+
+            var setViewOptions = this.options;
+            setViewOptions.canvas = this.canvas;
             
             // Draw the components on the grid
-            var componentSetView = new ComponentSetView(this.options);
+            var componentSetView = new ComponentSetView(setViewOptions);
             componentSetView.render();
         }
     });

@@ -10,101 +10,8 @@
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/foundation-changes.css">
 
-
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script type="text/javascript" src="js/lib/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="js/lib/zepto.js"></script>
-    <script type="text/javascript" src="js/lib/foundation.min.js"></script>
-    <script type="text/javascript" src="js/lib/fabric.js"></script>
-    <script type="text/javascript" src="js/ui/views/templates/templatefactory.js"></script>
-
-        <script type="text/javascript">
-        $(function() {
-        var lastMoved;
-
-        $(".slider").click(function() {
-          var pane = $("#" + $(this).data("pane"));
-
-          if (typeof(lastMoved) === "undefined" || !lastMoved) {
-            pane.slideDown("fast", function() {});
-            lastMoved = pane;
-          } else if (lastMoved.is(pane)) {
-            lastMoved.slideUp("fast", function(){});
-            lastMoved = null;
-          } else {
-            lastMoved.slideUp("fast", function(){});
-            pane.slideDown("fast", function() {});
-            lastMoved = pane;
-          }
-        });
-    });
-    </script>
-  
-
-    <script type="text/javascript" src="js/lib/custom.modernizr.js"></script>
-    <script type="text/javascript" src="js/lib/underscore-min.js"></script>
-    <script type="text/javascript" src="js/lib/backbone-min.js"></script>
-    <script type="text/javascript" src="js/ui/models/component.js"></script>
-    <script type="text/javascript" src="js/ui/collections/componentset.js"></script>
-    <script type="text/javascript" src="js/ui/models/circuit.js"></script>
-    <script type="text/javascript" src="js/ui/views/componentview.js"></script>
-    <script type="text/javascript" src="js/ui/views/componentsetview.js"></script>
-    <script type="text/javascript" src="js/ui/views/circuitview.js"></script>
-    <script type="text/javascript" type="text/javascript">
-        $(function() {
-            var gridSize = 16;
-
-        var circuit = new Circuit({
-            width: Math.floor($("#workbench").width() / gridSize),
-            height: Math.floor($("#workbench").height() / gridSize)
-        });
-
-        var v = new CircuitView({
-            el: $("#workbench"),
-            gridSize: gridSize,
-            circuit: circuit
-        });
-
-        var endPosition;
-
-        $(".gate").draggable({
-            revert: true,
-            revertDuration: 0,
-            scroll: false,
-            cursor: "pointer",
-            helper: 'clone',
-            zIndex: 1000,
-            start: function(event, ui) { 
-                $(this).draggable("option", "cursorAt", {
-                    left: Math.round(ui.helper.width() / 2),
-                    top: Math.round(ui.helper.height() / 2)
-                }); 
-                $(ui.helper).addClass("invalid");
-            },
-            drag: function(event, ui) {
-                endPosition = {left: event.pageX, top: event.pageY};
-            }
-        });
-
-        $("#workbench").droppable({ 
-            accept: ".gate", 
-            drop: function(event, ui) {
-                circuit.addComponent(new Component({
-                    x: Math.floor((endPosition.left - $("#workbench").offset().left) / gridSize), 
-                    y: Math.floor((endPosition.top - $("#workbench").offset().top) / gridSize),
-                    templateId: $(ui.helper).data("templateid")
-                }));
-           }, 
-            over: function(event, ui) {
-                $(ui.helper).removeClass("invalid");
-            },
-            out: function(event, ui) {
-                $(ui.helper).addClass("invalid");
-            }
-        });
-      });
-    </script>
-
+    <script type="text/javascript" data-main="main" src="js/require.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
 </head>
 
 <body>
@@ -167,18 +74,10 @@
             <div id="pane-6" class="panel" style="display:none;"></div>
         </div>
         <div class="large-8 columns collpase">
-            <canvas id="workbench"></div>
-            <script type="text/javascript">
-                $("#workbench").attr("width", $("#workbench").parent().innerWidth());
-                $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
-            </script>
+            <canvas id="workbench"></canvas>
         </div>
         <div class="large-2 columns sidebar sidebar-right">
         </div>
 	</div>
-
-  <script>
-    $(document).foundation();
-  </script>
 </body>
 </html>

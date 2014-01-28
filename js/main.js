@@ -89,5 +89,7 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
         $("#specialButton").click(function() {
             alert("The result of programming late at night while warm and fuzzy: <3 :)")
         });
+
+        $("#loading-screen").fadeOut(700);
     });
 });

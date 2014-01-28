@@ -85,5 +85,9 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
                 $(ui.helper).addClass("invalid");
             }
         });
+
+        $("#specialButton").click(function() {
+            alert("The result of programming late at night while warm and fuzzy: <3 :)")
+        });
     });
 });

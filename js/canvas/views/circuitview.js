@@ -6,6 +6,13 @@ define([
     "canvas/views/componentsetview"
 ], function(_, Backbone, fabric, Circuit, ComponentSetView) {
     return Backbone.View.extend({
+
+        lastMove: {
+            object: null,
+            isValid: false,
+            start: {}
+        },
+
         initialize: function(options) {
             this.options = options;
             this.options.components = options.circuit.get("components");
@@ -24,133 +31,36 @@ define([
                 hasControls: false,
                 selection: true
             });
-            var canvas = this.canvas;
 
-            var selection = null;
-            var mouseDown = false;
-            var lastMoveValid = false;
-            var selectionStartPosition = {};
+            var view = this;
 
-            this.canvas.on('mouse:down', function(meta) { 
-                mouseDown = true;
-            });    
-
-            var circuitView = this;
             this.canvas.on('mouse:up', function(meta) { 
-                mouseDown = false;
-                if (lastMoveValid) {
-                    selectionStartPosition.x = selection.getLeft();
-                    selectionStartPosition.y = selection.getTop();
-                } else if (selection != null) {
-                    selection.set({
-                        left: selectionStartPosition.x,
-                        top: selectionStartPosition.y,
+                if (view.lastMove.isValid) {
+                    view.lastMove.start.x = view.lastMove.object.getLeft();
+                    view.lastMove.start.y = view.lastMove.object.getTop();
+                } else if (view.lastMove.object != null) {
+                    view.lastMove.object.set({
+                        left: view.lastMove.start.x,
+                        top: view.lastMove.start.y,
                     });
-                    // Call options.circuit.moveSelection
+                    view._updateLocation(view.lastMove.object);
+                    view.canvas.renderAll();
                     console.log("Setting selection back");
                 }
             });    
 
             this.canvas.on('object:selected', function(meta) {
-                selection = meta.target;
-                selection.hasControls = false;
-                selectionStartPosition.x = selection.getLeft();
-                selectionStartPosition.y = selection.getTop();
+                view.lastMove.object = meta.target;
+                view.lastMove.object.hasControls = false;
+                view.lastMove.start.x = view.lastMove.object.getLeft();
+                view.lastMove.start.y = view.lastMove.object.getTop();
             });     
 
 
             // Snap moving objects to grid
             // http://jsfiddle.net/fabricjs/S9sLu/
             this.canvas.on('object:moving', function(meta) {
-                if (mouseDown == true && selection != null) {
-                var target = selection;
-                var targetWidth = target.getWidth();
-                var targetHeight = target.getHeight();
-
-                // Objects can be defined by their top left corner, their center, etc...
-                // We do our calculations with their top left corner values
-                var normalisedLeft;
-                var normalisedTop;
-                var shiftLeft;
-                var shiftTop;
-
-                // Normalise according by moving all positions into a top-left coordinate system
-                if (target.originX == "center") {
-                    normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * gridSize)) * gridSize;
-                    normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * gridSize)) * gridSize;
-                    shiftLeft = targetWidth / 2;
-                    shiftTop = targetHeight / 2;
-                }
-                else if (target.originX == "left") {
-                    normalisedLeft = Math.round(target.left / gridSize) * gridSize;
-                    normalisedTop = Math.round(target.top / gridSize) * gridSize;
-                    shiftLeft = 0;
-                    shiftTop = 0;
-                }
-                else
-                    throw "Unrecognised object type"
-
-                // Can't move things off the canvas
-                normalisedLeft = Math.max(normalisedLeft, 0);
-                normalisedLeft = Math.min(canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
-                normalisedTop = Math.max(normalisedTop, 0);
-                normalisedTop = Math.min(canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
-
-                // New UI coordinates in the objects coordinate system
-                var newLeft = normalisedLeft + shiftLeft;
-                var newTop = normalisedTop + shiftTop;
-
-                // Let users move objects anywhere on the grid for now
-                target.set({
-                    left: newLeft,
-                    top: newTop
-                });
-
-
-                if (typeof target.id != "undefined") {
-                    // Individual component has been moved
-                    var newX = normalisedLeft / gridSize;
-                    var newY = normalisedTop / gridSize;
-                    lastMoveValid = options.circuit.moveComponent(target.id, newX, newY);
-
-                    if (lastMoveValid) {
-                        target.set({
-                            fill: "white"
-                        });
-                    } else {
-                        target.set({
-                            fill: "red"
-                        });
-                    }
-
-                } else if (typeof target.objects != "undefined") {
-                    // Component selection has been moved
-                    var transformations = [];
-                    _.each(target.objects, function(c) {
-                        var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / gridSize);
-                        var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / gridSize);
-
-                        transformations.push({
-                            id: c.id,
-                            newX: newX,
-                            newY: newY
-                        });
-                    });
-                    lastMoveValid = options.circuit.moveSelection(transformations)
-
-                    if (lastMoveValid) {
-                        target.set({
-                            fill: "white"
-                        });
-                    } else {
-                        target.set({
-                            fill: "red",
-                        });
-                    }
-                }
-                else
-                    throw "Unrecognised object type"
-            }
+                view._updateLocation(meta.target)
             });
 
             this.render();
@@ -185,6 +95,98 @@ define([
             // Draw the components on the grid
             var componentSetView = new ComponentSetView(setViewOptions);
             componentSetView.render();
-        }
+        },
+
+        _updateLocation: function(target) {
+            if (target != null) {
+                var gridSize = this.options.gridSize;
+                var targetWidth = target.getWidth();
+                var targetHeight = target.getHeight();
+
+                // Objects can be defined by their top left corner, their center, etc...
+                // We do our calculations with their top left corner values
+                var normalisedLeft;
+                var normalisedTop;
+                var shiftLeft;
+                var shiftTop;
+
+                // Normalise according by moving all positions into a top-left coordinate system
+                if (target.originX == "center") {
+                    normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * gridSize)) * gridSize;
+                    normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * gridSize)) * gridSize;
+                    shiftLeft = targetWidth / 2;
+                    shiftTop = targetHeight / 2;
+                }
+                else if (target.originX == "left") {
+                    normalisedLeft = Math.round(target.left / gridSize) * gridSize;
+                    normalisedTop = Math.round(target.top / gridSize) * gridSize;
+                    shiftLeft = 0;
+                    shiftTop = 0;
+                }
+                else
+                    throw "Unrecognised object type"
+
+                // Can't move things off the canvas
+                normalisedLeft = Math.max(normalisedLeft, 0);
+                normalisedLeft = Math.min(this.canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
+                normalisedTop = Math.max(normalisedTop, 0);
+                normalisedTop = Math.min(this.canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
+
+                // New UI coordinates in the objects coordinate system
+                var newLeft = normalisedLeft + shiftLeft;
+                var newTop = normalisedTop + shiftTop;
+
+                // Let users move objects anywhere on the grid for now
+                target.set({
+                    left: newLeft,
+                    top: newTop
+                });
+
+
+                if (typeof target.id != "undefined") {
+                    // Individual component has been moved
+                    var newX = normalisedLeft / gridSize;
+                    var newY = normalisedTop / gridSize;
+                    this.lastMove.isValid = this.options.circuit.moveComponent(target.id, newX, newY);
+
+                    if (this.lastMove.isValid) {
+                        target.set({
+                            fill: "white"
+                        });
+                    } else {
+                        target.set({
+                            fill: "red"
+                        });
+                    }
+
+                } else if (typeof target.objects != "undefined") {
+                    // Component selection has been moved
+                    var transformations = [];
+                    _.each(target.objects, function(c) {
+                        var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / gridSize);
+                        var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / gridSize);
+
+                        transformations.push({
+                            id: c.id,
+                            newX: newX,
+                            newY: newY
+                        });
+                    });
+                    this.lastMove.isValid = this.options.circuit.moveSelection(transformations)
+
+                    if (this.lastMove.isValid) {
+                        target.set({
+                            fill: "white"
+                        });
+                    } else {
+                        target.set({
+                            fill: "red",
+                        });
+                    }
+                }
+                else
+                    throw "Unrecognised object type"
+            }
+        }   
     });
 });

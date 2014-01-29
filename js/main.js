@@ -34,16 +34,17 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
         var lastMoved;
         $(".slider").click(function() {
             var pane = $("#" + $(this).data("pane"));
+            var speed = 100;
 
             if (typeof(lastMoved) === "undefined" || !lastMoved) {
-                pane.slideDown("fast", function() {});
+                pane.slideDown(speed, function() {});
                 lastMoved = pane;
             } else if (lastMoved.is(pane)) {
-                lastMoved.slideUp("fast", function(){});
+                lastMoved.slideUp(speed, function(){});
                 lastMoved = null;
             } else {
-                lastMoved.slideUp("fast", function(){});
-                pane.slideDown("fast", function() {});
+                lastMoved.slideUp(speed, function(){});
+                pane.slideDown(speed, function() {});
                 lastMoved = pane;
             }
         });
@@ -87,9 +88,11 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
         });
 
         $("#specialButton").click(function() {
-            alert("The result of programming late at night while warm and fuzzy: <3 :)")
+            alert("Well obviously I couldn't not... Have a lovely evening <3 :)")
         });
-
-        $("#loading-screen").fadeOut(700);
+      
+        $("#loading-panel").fadeOut(300, function() {
+            $("#loading-screen").fadeOut(300);
+        });
     });
 });

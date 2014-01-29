@@ -4,7 +4,39 @@ body {
     -moz-user-select: none;    
     -ms-user-select: none;      
     user-select: none;
-    background-color:#444;
+    background-color:#353535;
+}
+
+#loading-screen {
+    position: fixed; 
+    top: 0px; 
+    left: 0px; 
+    width: 100%; 
+    height: 100%; 
+    background-color:#333; 
+    z-index:100
+}
+#loading-panel {
+    position: absolute; 
+    width: 300px; 
+    height: 200px;
+    top: 50%; 
+    left: 50%; 
+    margin: -100px 0px 0px -150px; 
+    color:#AAA
+}
+#loading-icon {
+    display:block; 
+    text-align:center;
+    margin-bottom:30px;
+}
+#loading-text {
+    text-align: center; 
+    font-weight: bold;
+    width: 100%
+}
+
+.top-bar {
 }
 
 .row {
@@ -12,7 +44,7 @@ body {
 }
 
 .sidebar {
-    background-color:#444;
+    background-color:transparent;
 }
 
 .sidebar-left {

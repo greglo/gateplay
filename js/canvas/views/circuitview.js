@@ -3,8 +3,9 @@ define([
     "backbone",
     "fabric",
     "canvas/models/circuit",
-    "canvas/views/componentsetview"
-], function(_, Backbone, fabric, Circuit, ComponentSetView) {
+    "canvas/views/componentview",
+    "canvas/views/componentsetview",
+], function(_, Backbone, fabric, Circuit, ComponentView, ComponentSetView) {
     return Backbone.View.extend({
 
         lastMove: {
@@ -19,7 +20,8 @@ define([
             this.width = Math.floor(this.$el.width() / this.options.gridSize);
             this.height = Math.floor(this.$el.height() / this.options.gridSize);
 
-            this.options.components.on("add remove", this.render, this);
+            this.options.components.on("add", this._addComponent, this);
+            this.options.components.on("remove", this.render, this);
 
             var gridSize = this.options.gridSize;
             
@@ -95,6 +97,14 @@ define([
             // Draw the components on the grid
             var componentSetView = new ComponentSetView(setViewOptions);
             componentSetView.render();
+        },
+
+        _addComponent: function(c) {
+            var view = new ComponentView({
+                options: this.options,
+                model: c
+            });
+            view.render(this.options.canvas); 
         },
 
         _updateLocation: function(target) {

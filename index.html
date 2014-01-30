@@ -24,51 +24,49 @@
         </div>
     </div>
 
-    <div class="fixed">
-        <nav class="top-bar" data-topbar>
-            <ul class="title-area">
-                <li class="name"><h1><a href="#">GateSim</a></h1></li>
+    <nav class="top-bar" data-topbar>
+        <ul class="title-area">
+            <li class="name"><h1><a href="#">GateSim</a></h1></li>
+        </ul>
+
+        <section class="top-bar-section">
+            <ul class="left">
+                <li class="divider hide-for-small"></li>
+                <li class="has-dropdown">
+                    <a href="#">Tutorials</a>
+                    <ul class="dropdown">
+                        <li><label>Starting Out</label></li>
+                        <li><a href="#">Input and Output</a></li>
+                        <li><a href="#">Binary Gates</a></li>
+                        <li class="divider"></li>
+                        <li><label>Making Progress</label></li>
+                        <li><a href="#">Adders</a></li>
+                        <li><a href="#">Memory</a></li>
+                        <li class="divider"></li>
+                    </ul>
+                </li>
             </ul>
 
-            <section class="top-bar-section">
-                <ul class="left">
-                    <li class="divider hide-for-small"></li>
-                    <li class="has-dropdown">
-                        <a href="#">Tutorials</a>
-                        <ul class="dropdown">
-                            <li><label>Starting Out</label></li>
-                            <li><a href="#">Input and Output</a></li>
-                            <li><a href="#">Binary Gates</a></li>
-                            <li class="divider"></li>
-                            <li><label>Making Progress</label></li>
-                            <li><a href="#">Adders</a></li>
-                            <li><a href="#">Memory</a></li>
-                            <li class="divider"></li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <ul class="right">
-                    <li class="divider show-for-small"></li>
-                    <li class="has-form">
-                        <a id="specialButton" class="button" href="#">Button!</a>
-                    </li>
-                </ul>
-            </section>
-        </nav>
-    </div>
+            <ul class="right">
+                <li class="divider show-for-small"></li>
+                <li class="has-form">
+                    <a id="specialButton" class="button" href="#">Button!</a>
+                </li>
+            </ul>
+        </section>
+    </nav>
 
 	<div class="row">
         <div class="large-2 medium-12 small-12 columns sidebar sidebar-left">
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">
                 <div class="row">
-                    <div data-templateid="and" class="large-6 columns gate"></div>
-                    <div data-templateid="or" class="large-6 columns gate"></div>
+                    <img data-templateid="and" src="" class="large-6 columns gate"></img>
+                    <img data-templateid="or" src="" class="large-6 columns gate"></img>
                 </div>
                 <div class="row">
-                    <div data-templateid="not" class="large-6 columns gate"></div>
-                    <div data-templateid="xor" class="large-6 columns gate"></div>
+                    <div data-templateid="not" class="large-6 columns gate2"></div>
+                    <div data-templateid="xor" class="large-6 columns gate2"></div>
                 </div>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
@@ -84,6 +82,7 @@
         </div>
         <div class="large-8 medium-12 small-12 columns collpase">
             <canvas id="workbench"></canvas>
+            <canvas id="rasterizer" style="display: none;"></canvas>
         </div>
         <div class="large-2 medium-12 small-12 columns sidebar sidebar-right">
         </div>

@@ -4,9 +4,11 @@ define([
     "foundation",
     "canvas/models/circuit",
     "canvas/models/component",
-    "canvas/views/circuitview"
+    "canvas/views/circuitview",
+    "fabric",
+    "canvas/views/templates/templatefactory"
 ], 
-function($, ui, Foundation, Circuit, Component, CircuitView) {
+function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFactory) {
     var GRID_SIZE = 16;
 
     $(function() {
@@ -27,6 +29,27 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
             gridSize: GRID_SIZE,
             circuit: circuit
         });
+
+        $("#rasterizer").attr("width", 7 * GRID_SIZE);
+        $("#rasterizer").attr("height", 5 * GRID_SIZE);
+        
+        var rasterizer = new fabric.StaticCanvas("rasterizer");
+        
+        $(".gate").each(function() {
+            var templateId = $(this).data("templateid");
+            var template = TemplateFactory.getTemplate(templateId);
+            template.set({
+                left: 0,
+                top: 0
+            });
+            template.scale(GRID_SIZE / 120);
+            rasterizer.clear();
+            rasterizer.add(template);
+            $(this).css("width", 7 * GRID_SIZE);
+            $(this).css("height", 5 * GRID_SIZE);
+            $(this).attr("src", rasterizer.toDataURL());
+        });
+
 
 
 
@@ -63,7 +86,7 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
                     left: Math.round(ui.helper.width() / 2),
                     top: Math.round(ui.helper.height() / 2)
                 }); 
-                $(ui.helper).addClass("invalid");
+                //$(ui.helper).addClass("invalid");
             },
             drag: function(event, ui) {
                 endPosition = {left: event.pageX, top: event.pageY};
@@ -74,16 +97,16 @@ function($, ui, Foundation, Circuit, Component, CircuitView) {
             accept: ".gate", 
             drop: function(event, ui) {
                 circuit.addComponent(new Component({
-                    x: Math.floor((endPosition.left - $("#workbench").offset().left) / GRID_SIZE), 
-                    y: Math.floor((endPosition.top - $("#workbench").offset().top) / GRID_SIZE),
+                    x: Math.round((endPosition.left - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
+                    y: Math.round((endPosition.top - $("#workbench").offset().top) / GRID_SIZE - 2.5),
                     templateId: $(ui.helper).data("templateid")
                 }));
            }, 
             over: function(event, ui) {
-                $(ui.helper).removeClass("invalid");
+                //$(ui.helper).removeClass("invalid");
             },
             out: function(event, ui) {
-                $(ui.helper).addClass("invalid");
+                //$(ui.helper).addClass("invalid");
             }
         });
 

@@ -58,9 +58,15 @@ body {
     border: 1px solid #444;
 }
 
-.sidebar-left .gate {
-    height: 60px;
+.gate {
     border: none;
+    cursor: move;
+}
+.gate-left {
+    float: left;
+}
+.gate-right {
+    float: right;
 }
 
 .invalid {

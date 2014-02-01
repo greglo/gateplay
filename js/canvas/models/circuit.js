@@ -22,6 +22,11 @@ define([
             this.set("locationMap", emptyLocationMap);
         },
 
+        isEmptyLocation: function(x, y, width, height) {
+            var points = this._getComponentPoints(x, y, width, height);
+            return this._areValidPoints(points, []);
+        },
+
         addComponent: function(c) {
             var points = this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
             var valid = this._areValidPoints(points, [c.id]);

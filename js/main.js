@@ -30,24 +30,34 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
             circuit: circuit
         });
 
-        $("#rasterizer").attr("width", 7 * GRID_SIZE);
+        $("#rasterizer").attr("width", 2 * 7 * GRID_SIZE);
         $("#rasterizer").attr("height", 5 * GRID_SIZE);
         
         var rasterizer = new fabric.StaticCanvas("rasterizer");
         
         $(".gate").each(function() {
+            rasterizer.clear();
             var templateId = $(this).data("templateid");
             var template = TemplateFactory.getTemplate(templateId);
+            template.setValid(true);
             template.set({
                 left: 0,
                 top: 0
             });
             template.scale(GRID_SIZE / 120);
-            rasterizer.clear();
+            rasterizer.add(template);
+
+            var template = TemplateFactory.getTemplate(templateId);
+            template.setValid(false);
+            template.set({
+                left: 7 * GRID_SIZE,
+                top: 0
+            });
+            template.scale(GRID_SIZE / 120);
             rasterizer.add(template);
             $(this).css("width", 7 * GRID_SIZE);
             $(this).css("height", 5 * GRID_SIZE);
-            $(this).attr("src", rasterizer.toDataURL());
+            $(this).css("background-image", "url(" + rasterizer.toDataURL() + ")");
         });
 
 
@@ -73,7 +83,6 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
         });
 
         // Drag & drop gates
-        var endPosition;
         $(".gate").draggable({
             revert: true,
             revertDuration: 0,
@@ -86,27 +95,42 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
                     left: Math.round(ui.helper.width() / 2),
                     top: Math.round(ui.helper.height() / 2)
                 }); 
-                //$(ui.helper).addClass("invalid");
+                $(ui.helper).addClass("invalid");
             },
-            drag: function(event, ui) {
-                endPosition = {left: event.pageX, top: event.pageY};
-            }
+            drag: function(event, ui) { 
+                var x = Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5);
+                var y = Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5);
+                if (circuit.isEmptyLocation(x, y, 7, 5)) {
+                    $(ui.helper).removeClass("invalid");
+                    // HACK: Force webkit browsers to display the class change
+                    $(ui.helper).css("display", "none");
+                    $(ui.helper).offset();
+                    $(ui.helper).css("display", "block");
+                } else {
+                    $(ui.helper).addClass("invalid");
+                    $(ui.helper).css("display", "none");
+                    $(ui.helper).offset();
+                    $(ui.helper).css("display", "block");
+                }
+            },
         });
 
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
                 circuit.addComponent(new Component({
-                    x: Math.round((endPosition.left - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
-                    y: Math.round((endPosition.top - $("#workbench").offset().top) / GRID_SIZE - 2.5),
+                    x: Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
+                    y: Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
                     templateId: $(ui.helper).data("templateid")
                 }));
            }, 
             over: function(event, ui) {
-                //$(ui.helper).removeClass("invalid");
+                    $(ui.helper).removeClass("invalid");
+                    $(ui.helper).addClass("valid");
             },
             out: function(event, ui) {
-                //$(ui.helper).addClass("invalid");
+                    $(ui.helper).removeClass("valid");
+                    $(ui.helper).addClass("invalid");
             }
         });
 

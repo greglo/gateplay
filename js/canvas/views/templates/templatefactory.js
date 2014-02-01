@@ -89,6 +89,14 @@ define([
 
             var group = new fabric.Group(objects);
             group.hasControls = false;
+
+            group.setValid = function(isValid) {
+                if (isValid)
+                    this.setFill("white");
+                else
+                    this.setFill("red");
+            };
+
             return group;
         }
     };

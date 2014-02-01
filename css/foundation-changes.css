@@ -51,7 +51,8 @@ body {
 }
 
 .sidebar-left {
-    padding:0px 10px;
+    padding:20px 10px;
+    padding-top: 0px;
 }
 .sidebar-left > .panel {
     margin-bottom: 0px;
@@ -61,16 +62,16 @@ body {
 .gate {
     border: none;
     cursor: move;
+    background-position: left;
+}
+.gate.invalid {
+    background-position: right;
 }
 .gate-left {
     float: left;
 }
 .gate-right {
     float: right;
-}
-
-.invalid {
-    background-color: #F00; !important
 }
 
 .sidebar-left > .button.dropdown {

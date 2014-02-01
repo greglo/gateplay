@@ -158,16 +158,7 @@ define([
                     var newX = normalisedLeft / gridSize;
                     var newY = normalisedTop / gridSize;
                     this.lastMove.isValid = this.options.circuit.moveComponent(target.id, newX, newY);
-
-                    if (this.lastMove.isValid) {
-                        target.set({
-                            fill: "white"
-                        });
-                    } else {
-                        target.set({
-                            fill: "red"
-                        });
-                    }
+                    target.setValid(this.lastMove.isValid)
 
                 } else if (typeof target.objects != "undefined") {
                     // Component selection has been moved
@@ -182,17 +173,12 @@ define([
                             newY: newY
                         });
                     });
-                    this.lastMove.isValid = this.options.circuit.moveSelection(transformations)
-
-                    if (this.lastMove.isValid) {
-                        target.set({
-                            fill: "white"
-                        });
-                    } else {
-                        target.set({
-                            fill: "red",
-                        });
-                    }
+                    var isValid = this.options.circuit.moveSelection(transformations);
+                    this.lastMove.isValid = isValid;
+                    
+                    _.each(target.objects, function(c) {
+                        c.setValid(isValid);
+                    });
                 }
                 else
                     throw "Unrecognised object type"

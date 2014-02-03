@@ -1,8 +1,9 @@
 define([
+    "underscore",
     "backbone",
     "canvas/collections/componentset"
 
-], function(Backbone, ComponentSet) {
+], function(_, Backbone, ComponentSet) {
     return Backbone.Model.extend({
         initialize: function(options) {
             if (typeof options.width == "undefined" || options.width < 0)
@@ -22,13 +23,13 @@ define([
             this.set("locationMap", emptyLocationMap);
         },
 
-        isEmptyLocation: function(x, y, width, height) {
-            var points = this._getComponentPoints(x, y, width, height);
+        isEmptyRect: function(x, y, width, height) {
+            var points = this._getPointsInRect(x, y, width, height);
             return this._areValidPoints(points, []);
         },
 
         addComponent: function(c) {
-            var points = this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
+            var points = this._getComponentPoints(c);
             var valid = this._areValidPoints(points, [c.id]);
             
             if (!valid)
@@ -39,20 +40,20 @@ define([
         },
 
         removeComponent: function(c) {
-            this._setPoints(this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height")), -1);
+            this._setPoints(this._getComponentPoints(c), -1);
             this.get("components").remove(c);
         },
 
-        moveComponent: function(id, newX, newY) {
+        moveComponentById: function(id, newX, newY) {
             var transformations = [{
                 id: id,
                 newX: newX,
                 newY: newY
             }];
-            return this.moveSelection(transformations);
+            return this.moveGroupByIds(transformations);
         },
 
-        moveSelection: function(transformations) {
+        moveGroupByIds: function(transformations) {
             var components = this.get("components");
 
             var pointsByTransform = [];
@@ -70,7 +71,7 @@ define([
                 var t = transformations[i];
                 var c = components.get(t.id);
 
-                var points = this._getComponentPoints(t.newX, t.newY, c.get("width"), c.get("height"));
+                var points = this._getPointsInRect(t.newX, t.newY, c.get("width"), c.get("height"));
                 var valid = this._areValidPoints(points, validIds);
 
                 if (!valid)
@@ -80,11 +81,13 @@ define([
                 pointsByTransform[i] = points;
             }
 
+            // If we haven't returned false by this point, then all the tranformations are valid
+            // We have cached the new points for every object, so now we just update the map
             for (var i = 0; i < transformations.length; i++) {
                 var t = transformations[i];
                 var c = components.get(t.id);
                 var points = pointsByTransform[i]
-                var oldPoints = this._getComponentPoints(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
+                var oldPoints = this._getComponentPoints(c);
 
                 this._clearPoints(oldPoints, t.id);
                 this._setPoints(points, t.id);
@@ -95,7 +98,11 @@ define([
             return true;
         },
 
-        _getComponentPoints: function(x, y, width, height) {
+        _getComponentPoints: function(c) {
+            return this._getPointsInRect(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
+        },
+
+        _getPointsInRect: function(x, y, width, height) {
             var points = [];
             for (var px = x; px < x + width; px++) {
                 for (var py = y; py < y + height; py++) {

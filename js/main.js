@@ -44,7 +44,7 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
                 left: 0,
                 top: 0
             });
-            template.scale(GRID_SIZE / 120);
+            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
             rasterizer.add(template);
 
             var template = TemplateFactory.getTemplate(templateId);
@@ -53,7 +53,7 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
                 left: 7 * GRID_SIZE,
                 top: 0
             });
-            template.scale(GRID_SIZE / 120);
+            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
             rasterizer.add(template);
             $(this).css("width", 7 * GRID_SIZE);
             $(this).css("height", 5 * GRID_SIZE);
@@ -91,16 +91,12 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
             helper: 'clone',
             zIndex: 1000,
             start: function(event, ui) { 
-                $(this).draggable("option", "cursorAt", {
-                    left: Math.round(ui.helper.width() / 2),
-                    top: Math.round(ui.helper.height() / 2)
-                }); 
                 $(ui.helper).addClass("invalid");
             },
             drag: function(event, ui) { 
                 var x = Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5);
                 var y = Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5);
-                if (circuit.isEmptyLocation(x, y, 7, 5)) {
+                if (circuit.isEmptyRect(x, y, 7, 5)) {
                     $(ui.helper).removeClass("invalid");
                     // HACK: Force webkit browsers to display the class change
                     $(ui.helper).css("display", "none");
@@ -114,6 +110,10 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
                 }
             },
         });
+        $(".gate").draggable("option", "cursorAt", {
+            left: Math.round($(".gate").width() / 2),
+            top: Math.round($(".gate").height() / 2)
+        }); 
 
         $("#workbench").droppable({ 
             accept: ".gate", 

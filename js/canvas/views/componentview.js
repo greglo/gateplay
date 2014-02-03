@@ -16,7 +16,7 @@ define([
             });
 
             // Templates are build on a 120 pixel grid, but we now scale them to the appropriate size
-            template.scale(this.options.gridSize / 120);
+            template.scale(this.options.gridSize / TemplateFactory.BOX_SIZE);
 
             // We associate the canvas element with its backbone model
             template.id = this.model.get("id");

@@ -2,8 +2,10 @@ define([
     "fabric"
 ], function(fabric) {
     return {
+        BOX_SIZE: 120,
+
         getTemplate: function(templateId) {
-            var boxSize = 120; 
+            var boxSize = this.BOX_SIZE;
 
             var wireColor = "rgb(70, 70, 70)";
             var gateColor = "rgb(70, 70, 70)";

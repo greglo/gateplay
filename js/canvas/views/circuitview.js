@@ -157,7 +157,7 @@ define([
                     // Individual component has been moved
                     var newX = normalisedLeft / gridSize;
                     var newY = normalisedTop / gridSize;
-                    this.lastMove.isValid = this.options.circuit.moveComponent(target.id, newX, newY);
+                    this.lastMove.isValid = this.options.circuit.moveComponentById(target.id, newX, newY);
                     target.setValid(this.lastMove.isValid)
 
                 } else if (typeof target.objects != "undefined") {
@@ -173,9 +173,9 @@ define([
                             newY: newY
                         });
                     });
-                    var isValid = this.options.circuit.moveSelection(transformations);
+                    var isValid = this.options.circuit.moveGroupByIds(transformations);
                     this.lastMove.isValid = isValid;
-                    
+
                     _.each(target.objects, function(c) {
                         c.setValid(isValid);
                     });

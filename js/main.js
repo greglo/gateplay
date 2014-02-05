@@ -18,23 +18,23 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
         $("#workbench").attr("width", $("#workbench").parent().innerWidth());
         $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
         
-        // Create the canvas model and view
+        // Create the canvas model
         var circuit = new Circuit({
             width: Math.floor($("#workbench").width() / GRID_SIZE),
             height: Math.floor($("#workbench").height() / GRID_SIZE)
         });
 
+        // Create canvas view
         var v = new CircuitView({
             el: $("#workbench"),
             gridSize: GRID_SIZE,
             circuit: circuit
         });
 
+        // Create image files for each gate
         $("#rasterizer").attr("width", 2 * 7 * GRID_SIZE);
         $("#rasterizer").attr("height", 5 * GRID_SIZE);
-        
         var rasterizer = new fabric.StaticCanvas("rasterizer");
-        
         $(".gate").each(function() {
             rasterizer.clear();
             var templateId = $(this).data("templateid");
@@ -123,15 +123,7 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
                     y: Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
                     templateId: $(ui.helper).data("templateid")
                 }));
-           }, 
-            over: function(event, ui) {
-                    $(ui.helper).removeClass("invalid");
-                    $(ui.helper).addClass("valid");
-            },
-            out: function(event, ui) {
-                    $(ui.helper).removeClass("valid");
-                    $(ui.helper).addClass("invalid");
-            }
+            }, 
         });
 
         $("#specialButton").click(function() {

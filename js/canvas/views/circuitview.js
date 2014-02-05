@@ -54,9 +54,21 @@ define([
             this.canvas.on('object:selected', function(meta) {
                 view.lastMove.object = meta.target;
                 view.lastMove.object.hasControls = false;
+
+                // If we are selecting a single object, bring it to the front
+                if (typeof meta.target.id != "undefined") {
+                    meta.target.bringToFront();
+                }
                 view.lastMove.start.x = view.lastMove.object.getLeft();
                 view.lastMove.start.y = view.lastMove.object.getTop();
             });     
+
+            this.canvas.on('selection:created', function(meta) {
+                // If we are selecting multiple objects, bring each of them to the front in turn
+                _.each(meta.target.objects, function(object) {
+                    object.bringToFront();
+                });
+            });   
 
 
             // Snap moving objects to grid

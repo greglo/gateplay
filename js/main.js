@@ -60,7 +60,12 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
             $(this).css("background-image", "url(" + rasterizer.toDataURL() + ")");
         });
 
-
+        $("#download-image").click(function() {
+            var image = v.canvas.toDataURL();
+            var a = document.getElementById('download-image');
+            a.href=image;
+            a.download = "circuit.png";
+        });
 
 
         // Accordion

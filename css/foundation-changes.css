@@ -36,14 +36,16 @@ body {
     width: 100%
 }
 
-.top-bar {
-}
-
 .row {
     max-width: 100%; !important
 }
 .columns {
     padding:0px 00px;
+}
+
+.main-row {
+    border-top: 1px solid #303030;
+    padding-top:1px;
 }
 
 .sidebar {

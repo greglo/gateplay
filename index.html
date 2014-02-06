@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>GateSim</title>
+    <title>GatePlay</title>
 
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/foundation-changes.css">
@@ -20,31 +20,20 @@
     <div id="loading-screen">
         <div id="loading-panel">
             <i id="loading-icon" class="fa fa-cog fa-spin fa-5x"></i>
-            <div id="loading-text">Loading GateSim...</div>
+            <div id="loading-text">Loading GatePlay...</div>
         </div>
     </div>
 
-    <nav class="top-bar" data-topbar>
-        <ul class="title-area">
-            <li class="name"><h1><a href="#">GateSim</a></h1></li>
+    <nav class="top-bar row" data-topbar>
+        <ul class="title-area large-2 columns">
+            <li class="name"><h1><a href="#">GatePlay</a></h1></li>
         </ul>
 
         <section class="top-bar-section">
-            <ul class="left">
-                <li class="divider hide-for-small"></li>
-                <li class="has-dropdown">
-                    <a href="#">Tutorials</a>
-                    <ul class="dropdown">
-                        <li><label>Starting Out</label></li>
-                        <li><a href="#">Input and Output</a></li>
-                        <li><a href="#">Binary Gates</a></li>
-                        <li class="divider"></li>
-                        <li><label>Making Progress</label></li>
-                        <li><a href="#">Adders</a></li>
-                        <li><a href="#">Memory</a></li>
-                        <li class="divider"></li>
-                    </ul>
-                </li>
+            <ul class="large-3 columns">
+                <li class=""><a data-tooltip title="Run Circuit" href="#"><i class="fa fa-play"></i></a></li>
+                <li class=""><a data-tooltip title="Save Progress" href="#"><i class="fa fa-save"></i></a></li>
+                <li class=""><a id="download-image" data-tooltip title="Download as .png" href="#"><i class="fa fa-download"></i></a></li>
             </ul>
 
             <ul class="right">
@@ -56,7 +45,7 @@
         </section>
     </nav>
 
-	<div class="row">
+	<div class="row main-row">
         <div class="large-2 medium-12 small-12 columns sidebar sidebar-left">
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">

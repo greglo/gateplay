@@ -41,8 +41,9 @@ define([
                         top: view.lastMove.start.y,
                     });
                     view._updateLocation(view.lastMove.object);
+                    // Rendering the object alone is not enough as it leaves a "ghost" image
+                    // So we renderAll()
                     view.options.canvas.renderAll();
-                    console.log("Setting selection back");
                 }
             });    
 

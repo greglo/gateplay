@@ -15,28 +15,23 @@ define([
         },
 
         initialize: function(options) {
+            // Store options and aliases
             this.options = options;
             this.options.components = options.circuit.get("components");
-            this.width = Math.floor(this.$el.width() / this.options.gridSize);
-            this.height = Math.floor(this.$el.height() / this.options.gridSize);
 
+            // Bind component set change events to handlers
             this.options.components.on("add", this._addComponent, this);
             this.options.components.on("remove", this.render, this);
 
-            var gridSize = this.options.gridSize;
-            
-            this.$el.attr("width", this.width * gridSize);
-            this.$el.attr("height", this.height * gridSize);
-
-
-            this.canvas = new fabric.Canvas('workbench', { 
+            // Create fabricjs canvas
+            this.options.canvas = new fabric.Canvas('workbench', { 
                 hasControls: false,
                 selection: true
             });
 
             var view = this;
 
-            this.canvas.on('mouse:up', function(meta) { 
+            this.options.canvas.on('mouse:up', function(meta) { 
                 if (view.lastMove.isValid) {
                     view.lastMove.start.x = view.lastMove.object.getLeft();
                     view.lastMove.start.y = view.lastMove.object.getTop();
@@ -46,12 +41,12 @@ define([
                         top: view.lastMove.start.y,
                     });
                     view._updateLocation(view.lastMove.object);
-                    view.canvas.renderAll();
+                    view.options.canvas.renderAll();
                     console.log("Setting selection back");
                 }
             });    
 
-            this.canvas.on('object:selected', function(meta) {
+            this.options.canvas.on('object:selected', function(meta) {
                 view.lastMove.object = meta.target;
                 view.lastMove.object.hasControls = false;
 
@@ -63,7 +58,7 @@ define([
                 view.lastMove.start.y = view.lastMove.object.getTop();
             });     
 
-            this.canvas.on('selection:created', function(meta) {
+            this.options.canvas.on('selection:created', function(meta) {
                 // If we are selecting multiple objects, bring each of them to the front in turn
                 _.each(meta.target.objects, function(object) {
                     object.bringToFront();
@@ -73,7 +68,7 @@ define([
 
             // Snap moving objects to grid
             // http://jsfiddle.net/fabricjs/S9sLu/
-            this.canvas.on('object:moving', function(meta) {
+            this.options.canvas.on('object:moving', function(meta) {
                 view._updateLocation(meta.target)
             });
 
@@ -81,30 +76,32 @@ define([
         },
 
         render: function() {
-            console.log("Redraw");
             // Clear old canvas
-            this.canvas.clear();
+            this.options.canvas.clear();
 
-            var gridSize = this.options.gridSize;
+            // Convenient aliases
+            var GRID_SIZE = this.options.GRID_SIZE;
+            var width = this.options.circuit.get("width") * GRID_SIZE;
+            var height = this.options.circuit.get("height") * GRID_SIZE;
 
             // Add grid lines to the canvas
-            for (var i = 0; i < this.width; i++)
-                this.canvas.add(new fabric.Line([i * gridSize, 0, i * gridSize, this.height * gridSize], {
+            for (var x = 0; x < width; x += GRID_SIZE)
+                this.options.canvas.add(new fabric.Line([x, 0, x, height], {
                     stroke: '#ccc', 
                     selectable: false,
                     top: 0,
-                    left: i * gridSize - 0.5
+                    left: x - 0.5
                 }));
-            for (var i = 0; i < this.height; i++)
-                this.canvas.add(new fabric.Line([ 0, i * gridSize, this.width * gridSize, i * gridSize], {
+            for (var y = 0; y < height; y += GRID_SIZE)
+                this.options.canvas.add(new fabric.Line([0 , y, width, y], {
                     stroke: '#ccc', 
                     selectable: false,
-                    top: i * gridSize - 0.5,
+                    top: y - 0.5,
                     left: 0
                 }));
 
             var setViewOptions = this.options;
-            setViewOptions.canvas = this.canvas;
+            setViewOptions.canvas = this.options.canvas;
             
             // Draw the components on the grid
             var componentSetView = new ComponentSetView(setViewOptions);
@@ -121,7 +118,7 @@ define([
 
         _updateLocation: function(target) {
             if (target != null) {
-                var gridSize = this.options.gridSize;
+                var GRID_SIZE = this.options.GRID_SIZE;
                 var targetWidth = target.getWidth();
                 var targetHeight = target.getHeight();
 
@@ -134,14 +131,14 @@ define([
 
                 // Normalise according by moving all positions into a top-left coordinate system
                 if (target.originX == "center") {
-                    normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * gridSize)) * gridSize;
-                    normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * gridSize)) * gridSize;
+                    normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * GRID_SIZE)) * GRID_SIZE;
+                    normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * GRID_SIZE)) * GRID_SIZE;
                     shiftLeft = targetWidth / 2;
                     shiftTop = targetHeight / 2;
                 }
                 else if (target.originX == "left") {
-                    normalisedLeft = Math.round(target.left / gridSize) * gridSize;
-                    normalisedTop = Math.round(target.top / gridSize) * gridSize;
+                    normalisedLeft = Math.round(target.left / GRID_SIZE) * GRID_SIZE;
+                    normalisedTop = Math.round(target.top / GRID_SIZE) * GRID_SIZE;
                     shiftLeft = 0;
                     shiftTop = 0;
                 }
@@ -150,9 +147,9 @@ define([
 
                 // Can't move things off the canvas
                 normalisedLeft = Math.max(normalisedLeft, 0);
-                normalisedLeft = Math.min(this.canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
+                normalisedLeft = Math.min(this.options.canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
                 normalisedTop = Math.max(normalisedTop, 0);
-                normalisedTop = Math.min(this.canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
+                normalisedTop = Math.min(this.options.canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
 
                 // New UI coordinates in the objects coordinate system
                 var newLeft = normalisedLeft + shiftLeft;
@@ -167,8 +164,8 @@ define([
 
                 if (typeof target.id != "undefined") {
                     // Individual component has been moved
-                    var newX = normalisedLeft / gridSize;
-                    var newY = normalisedTop / gridSize;
+                    var newX = normalisedLeft / GRID_SIZE;
+                    var newY = normalisedTop / GRID_SIZE;
                     this.lastMove.isValid = this.options.circuit.moveComponentById(target.id, newX, newY);
                     target.setValid(this.lastMove.isValid)
 
@@ -176,8 +173,8 @@ define([
                     // Component selection has been moved
                     var transformations = [];
                     _.each(target.objects, function(c) {
-                        var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / gridSize);
-                        var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / gridSize);
+                        var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / GRID_SIZE);
+                        var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / GRID_SIZE);
 
                         transformations.push({
                             id: c.id,

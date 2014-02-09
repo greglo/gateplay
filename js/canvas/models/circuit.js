@@ -1,9 +1,9 @@
 define([
     "underscore",
     "backbone",
+    "canvas/models/component",
     "canvas/collections/componentset"
-
-], function(_, Backbone, ComponentSet) {
+], function(_, Backbone, Component, ComponentSet) {
     return Backbone.Model.extend({
         initialize: function(options) {
             if (typeof options.width == "undefined" || options.width < 0)
@@ -28,7 +28,15 @@ define([
             return this._areValidPoints(points, []);
         },
 
-        addComponent: function(c) {
+        addComponent: function(x, y, width, height, templateId) {
+            var c = new Component({
+                x: x,
+                y: y,
+                width: width,
+                height: height,
+                templateId: templateId
+            })
+
             var points = this._getComponentPoints(c);
             var valid = this._areValidPoints(points, [c.id]);
             

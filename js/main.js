@@ -2,33 +2,40 @@ define([
     "jquery",
     "jquery-ui",
     "foundation",
+    "fabric",
     "canvas/models/circuit",
     "canvas/models/component",
     "canvas/views/circuitview",
-    "fabric",
     "canvas/views/templates/templatefactory"
 ], 
-function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFactory) {
+function($, ui, Foundation, fabric, Circuit, Component, CircuitView, TemplateFactory) {
     var GRID_SIZE = 16;
 
     $(function() {
         $(document).foundation();
 
-        // Full size canvas
-        $("#workbench").attr("width", $("#workbench").parent().innerWidth());
-        $("#workbench").attr("height", $(window).height() - $(".top-bar").height());
-        
+        // Calculate full width and full height canvas size
+        var gridWidth = $("#workbench").parent().innerWidth();
+        var gridHeight = $(window).height() - $(".top-bar").height();
+        gridWidth = Math.floor(gridWidth / GRID_SIZE);
+        gridHeight = Math.floor(gridHeight / GRID_SIZE);
+        var pixelWidth = gridWidth * GRID_SIZE;
+        var pixelHeight = gridHeight * GRID_SIZE;
+
+        // Size <canvas>
+        $("#workbench").attr("width", pixelWidth);
+        $("#workbench").attr("height", pixelHeight);
+
         // Create the canvas model
         var circuit = new Circuit({
-            width: Math.floor($("#workbench").width() / GRID_SIZE),
-            height: Math.floor($("#workbench").height() / GRID_SIZE)
+            width: gridWidth,
+            height: gridHeight
         });
 
         // Create canvas view
         var v = new CircuitView({
-            el: $("#workbench"),
-            gridSize: GRID_SIZE,
-            circuit: circuit
+            GRID_SIZE: GRID_SIZE,
+            circuit: circuit,
         });
 
         // Create image files for each gate
@@ -123,11 +130,13 @@ function($, ui, Foundation, Circuit, Component, CircuitView, fabric, TemplateFac
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
-                circuit.addComponent(new Component({
-                    x: Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
-                    y: Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
-                    templateId: $(ui.helper).data("templateid")
-                }));
+                circuit.addComponent(
+                    Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
+                    Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
+                    7,
+                    5,
+                    $(ui.helper).data("templateid")
+                );
             }, 
         });
 

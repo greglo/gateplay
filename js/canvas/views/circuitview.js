@@ -24,14 +24,67 @@ define([
             this.options.components.on("remove", this.render, this);
 
             // Create fabricjs canvas
-            this.options.canvas = new fabric.Canvas('workbench', { 
+            this.canvas = new fabric.Canvas('workbench', { 
                 hasControls: false,
                 selection: true
             });
 
             var view = this;
 
-            this.options.canvas.on('mouse:up', function(meta) { 
+            // http://fabricjs.com/hovering/
+            this.canvas.findTarget = (function(originalFn) {
+                return function() {
+                    var target = originalFn.apply(this, arguments);
+                    if (target) {
+                        if (this._hoveredTarget !== target) {
+                            view.canvas.fire('object:over', target);
+                            if (this._hoveredTarget) {
+                                view.canvas.fire('object:out', this._hoveredTarget);
+                            }
+                            this._hoveredTarget = target;
+                        }   
+                    } else if (this._hoveredTarget) {
+                        view.canvas.fire('object:out', this._hoveredTarget);
+                        this._hoveredTarget = null;
+                    }
+                    return target;
+                };
+            })(this.canvas.findTarget);
+
+            this.canvas.bringToFront = (function(originalFn) {
+                return function() {
+                    originalFn.apply(this, arguments);
+                    var target = arguments[0];
+                    console.log("New top: " + target);
+                    if (typeof target.class != "undefined" && target.class == "gate") {
+                        view.canvas.fire("gate:front", target);
+                    }
+                };
+            })(this.canvas.bringToFront);
+
+            this.canvas.on("object:over", function(target) {
+                if (typeof target.class != "undefined") {
+                    switch (target.class) {
+                        case "input":
+                            target.setStroke("red");
+                            break;
+                    }
+                    target.render(view.canvas.getContext());
+                }
+            });
+
+            this.canvas.on("object:out", function(target) {
+                if (typeof target.class != "undefined") {
+                    switch (target.class) {
+                        case "input":
+                            target.setStroke("black");
+                            break;
+                    }
+                    target.render(view.canvas.getContext());
+                }
+            });
+
+            this.canvas.on('mouse:up', function(e) { 
                 if (view.lastMove.isValid) {
                     view.lastMove.start.x = view.lastMove.object.getLeft();
                     view.lastMove.start.y = view.lastMove.object.getTop();
@@ -41,44 +94,40 @@ define([
                         top: view.lastMove.start.y,
                     });
                     view._updateLocation(view.lastMove.object);
-                    // Rendering the object alone is not enough as it leaves a "ghost" image
-                    // So we renderAll()
-                    view.options.canvas.renderAll();
+                    view.canvas.renderAll();
                 }
             });    
 
-            this.options.canvas.on('object:selected', function(meta) {
-                view.lastMove.object = meta.target;
+            this.canvas.on('object:selected', function(e) {
+                view.lastMove.object = e.target;
                 view.lastMove.object.hasControls = false;
 
                 // If we are selecting a single object, bring it to the front
-                if (typeof meta.target.id != "undefined") {
-                    meta.target.bringToFront();
+                if (typeof e.target.componentId != "undefined") {
+                    e.target.bringToFront();
                 }
                 view.lastMove.start.x = view.lastMove.object.getLeft();
                 view.lastMove.start.y = view.lastMove.object.getTop();
             });     
 
-            this.options.canvas.on('selection:created', function(meta) {
+            this.canvas.on('selection:created', function(e) {
                 // If we are selecting multiple objects, bring each of them to the front in turn
-                _.each(meta.target.objects, function(object) {
+                _.each(e.target.getObjects(), function(object) {
                     object.bringToFront();
                 });
             });   
 
-
             // Snap moving objects to grid
             // http://jsfiddle.net/fabricjs/S9sLu/
-            this.options.canvas.on('object:moving', function(meta) {
-                view._updateLocation(meta.target)
+            this.canvas.on('object:moving', function(e) {
+                view._updateLocation(e.target)
             });
 
             this.render();
         },
 
         render: function() {
-            // Clear old canvas
-            this.options.canvas.clear();
+            this.canvas.clear();
 
             // Convenient aliases
             var GRID_SIZE = this.options.GRID_SIZE;
@@ -87,14 +136,14 @@ define([
 
             // Add grid lines to the canvas
             for (var x = 0; x < width; x += GRID_SIZE)
-                this.options.canvas.add(new fabric.Line([x, 0, x, height], {
+                this.canvas.add(new fabric.Line([x, 0, x, height], {
                     stroke: '#ccc', 
                     selectable: false,
                     top: 0,
                     left: x - 0.5
                 }));
             for (var y = 0; y < height; y += GRID_SIZE)
-                this.options.canvas.add(new fabric.Line([0 , y, width, y], {
+                this.canvas.add(new fabric.Line([0 , y, width, y], {
                     stroke: '#ccc', 
                     selectable: false,
                     top: y - 0.5,
@@ -102,7 +151,7 @@ define([
                 }));
 
             var setViewOptions = this.options;
-            setViewOptions.canvas = this.options.canvas;
+            setViewOptions.canvas = this.canvas;
             
             // Draw the components on the grid
             var componentSetView = new ComponentSetView(setViewOptions);
@@ -114,7 +163,7 @@ define([
                 options: this.options,
                 model: c
             });
-            view.render(this.options.canvas); 
+            view.render(); 
         },
 
         _updateLocation: function(target) {
@@ -148,9 +197,9 @@ define([
 
                 // Can't move things off the canvas
                 normalisedLeft = Math.max(normalisedLeft, 0);
-                normalisedLeft = Math.min(this.options.canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
+                normalisedLeft = Math.min(this.canvas.getWidth(), normalisedLeft + targetWidth) - targetWidth;
                 normalisedTop = Math.max(normalisedTop, 0);
-                normalisedTop = Math.min(this.options.canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
+                normalisedTop = Math.min(this.canvas.getHeight(), normalisedTop + targetHeight) - targetHeight;
 
                 // New UI coordinates in the objects coordinate system
                 var newLeft = normalisedLeft + shiftLeft;
@@ -163,22 +212,30 @@ define([
                 });
 
 
-                if (typeof target.id != "undefined") {
+                if (typeof target.componentId != "undefined" && target.class == "gate") {
                     // Individual component has been moved
-                    var newX = normalisedLeft / GRID_SIZE;
-                    var newY = normalisedTop / GRID_SIZE;
-                    this.lastMove.isValid = this.options.circuit.moveComponentById(target.id, newX, newY);
-                    target.setValid(this.lastMove.isValid)
+                    var newX = Math.round(normalisedLeft / GRID_SIZE);
+                    var newY = Math.round(normalisedTop / GRID_SIZE);
+                    this.canvas.fire("gate:moving", {id: target.componentId, left: normalisedLeft, top: normalisedTop});
+                    this.lastMove.isValid = this.options.circuit.moveComponentById(target.componentId, newX, newY);
+                    target.setValid(this.lastMove.isValid);
 
                 } else if (typeof target.objects != "undefined") {
                     // Component selection has been moved
                     var transformations = [];
-                    _.each(target.objects, function(c) {
+                    var canvas = this.canvas;
+                    _.each(target.getObjects(), function(c) {
                         var newX = Math.round((normalisedLeft + shiftLeft + c.getLeft()) / GRID_SIZE);
                         var newY =  Math.round((normalisedTop + shiftTop + c.getTop()) / GRID_SIZE);
 
+                        canvas.fire("gate:moving", {
+                            id: c.componentId, 
+                            left: normalisedLeft + shiftLeft + c.getLeft(), 
+                            top: normalisedTop + shiftTop + c.getTop()}
+                        );
+
                         transformations.push({
-                            id: c.id,
+                            id: c.componentId,
                             newX: newX,
                             newY: newY
                         });

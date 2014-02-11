@@ -16,7 +16,7 @@ define([
                     options: options,
                     model: model
                 });
-                view.render(options.canvas);        
+                view.render();        
             });
         }
     });

@@ -3,41 +3,52 @@ define([
 ], function(fabric) {
     return {
         BOX_SIZE: 120,
+        wireColor: "rgb(70, 70, 70)",
+        gateColor: "rgb(70, 70, 70)",
+        strokeWidth: 120 / 4,
 
-        getTemplate: function(templateId) {
+        getWire: function() {
+            // We "fill" a rectangle by making it entirely border
+            // That way changing the fill of a componsite including wires will not change the wire color
+            var wire = new fabric.Rect({
+                left: 0,
+                top: 0,
+                strokeWidth: this.BOX_SIZE / 2,
+                stroke: this.wireColor,
+                width: this.BOX_SIZE / 2,
+                height: this.BOX_SIZE / 2
+            });
+            wire.selectable = false;
+            return wire;
+        },
+
+        getTemplate: function(templateId, gridWidth, gridHeight) {
             var boxSize = this.BOX_SIZE;
 
-            var wireColor = "rgb(70, 70, 70)";
-            var gateColor = "rgb(70, 70, 70)";
-            var strokeWidth = boxSize / 4;
+            var wireColor = this.wireColor;
+            var gateColor = this.gateColor;
+            var strokeWidth = this.strokeWidth
             
             var outerLeft = 0;
-            var innerLeft = boxSize / 2;
+            var innerLeft = boxSize;
             var outerTop = 0;
             var innerTop = outerTop;
-            var outerWidth = 7 * boxSize;
-            var innerWidth = 6 * boxSize;
-            var outerHeight = 5 * boxSize;
+            var outerWidth = gridWidth * boxSize;
+            var innerWidth = outerWidth - (2 * boxSize);
+            var outerHeight = gridHeight * boxSize;
             var innerHeight = outerHeight - strokeWidth;
             var objects = [];
 
+            // HACK: We don't want the template to shink to fit whatever we draw inside, so we put invisible
+            // objects in each corner
+            objects.push(new fabric.Rect({left:outerLeft, top: outerTop, width: 0, height: 0}));
+            objects.push(new fabric.Rect({left:outerLeft + outerWidth, top: outerTop, width: 0, height: 0}));
+            objects.push(new fabric.Rect({left:outerLeft, top: outerTop + outerHeight, width: 0, height: 0}));
+            objects.push(new fabric.Rect({left:outerLeft + outerWidth, top: outerTop + outerHeight, width: 0, height: 0}));
 
             switch(templateId) {
-                case "wire":
-                    // We "fill" a rectangle by making it entirely border
-                    // That way changing the fill of a componsite including wires will not change the wire color
-                    objects.push(new fabric.Rect({
-                        left: 0,
-                        top: 0,
-                        strokeWidth: boxSize/2,
-                        stroke: wireColor,
-                        width: boxSize/2,
-                        height: boxSize/2
-                    }));
-                    break;
-
                 case "or":
-                    var wire = this.getTemplate("wire");
+                    var wire = this.getWire();
                     objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize - 0.5}));
                     objects.push(fabric.util.object.clone(wire).set({left:outerLeft + boxSize, top: boxSize - 0.5}));
                     objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3- 0.5}));
@@ -57,10 +68,6 @@ define([
                     break;
 
                     case "and":
-                    var wire = this.getTemplate("wire");
-                    objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize - 0.5}));
-                    objects.push(fabric.util.object.clone(wire).set({left:outerLeft, top: boxSize * 3- 0.5}));
-                    objects.push(fabric.util.object.clone(wire).set({left:outerWidth - boxSize, top: boxSize * 2- 0.5}));
                     objects.push(new fabric.Ellipse({
                         left: innerLeft + innerWidth * 0.2,
                         top: innerTop,

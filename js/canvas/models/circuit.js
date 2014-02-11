@@ -6,7 +6,7 @@ define([
 ], function(_, Backbone, Component, ComponentSet) {
     return Backbone.Model.extend({
         initialize: function(options) {
-            if (typeof options.width == "undefined" || options.width < 0)
+            if (typeof this.get("width") == "undefined" || options.width < 0)
                 throw "Circuit requires a valid width argument";
             if (typeof options.height == "undefined" || options.height < 0)
                 throw "Circuit requires a valid height argument";
@@ -81,7 +81,6 @@ define([
 
                 var points = this._getPointsInRect(t.newX, t.newY, c.get("width"), c.get("height"));
                 var valid = this._areValidPoints(points, validIds);
-
                 if (!valid)
                     return false;
 
@@ -134,10 +133,9 @@ define([
         },
 
         _setPoints: function(points, newId) {
-            var map = this.get("locationMap");
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
-                map[point.x][point.y] = newId;
+                this.get("locationMap")[point.x][point.y] = newId;
             }
         },
 
@@ -152,10 +150,12 @@ define([
         },
 
         _isValidPoint: function(point, allowedIds) {
-            if (point.x < 0 || point.x >= this.get("width"))
+            if (point.x < 0 || point.x >= this.get("width")) {
                 return false;
-            if (point.y < 0 || point.y >= this.get("height"))
+            }
+            if (point.y < 0 || point.y >= this.get("height")) {
                 return false;
+            }
 
             var actualId = this.get("locationMap")[point.x][point.y];
             return actualId == -1 || _.contains(allowedIds, actualId);

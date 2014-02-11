@@ -6,9 +6,10 @@ define([
     "canvas/models/circuit",
     "canvas/models/component",
     "canvas/views/circuitview",
+    "canvas/views/componentview",
     "canvas/views/templates/templatefactory"
 ], 
-function($, ui, Foundation, fabric, Circuit, Component, CircuitView, TemplateFactory) {
+function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentView, TemplateFactory) {
     var GRID_SIZE = 16;
 
     $(function() {
@@ -44,24 +45,21 @@ function($, ui, Foundation, fabric, Circuit, Component, CircuitView, TemplateFac
         var rasterizer = new fabric.StaticCanvas("rasterizer");
         $(".gate").each(function() {
             rasterizer.clear();
-            var templateId = $(this).data("templateid");
-            var template = TemplateFactory.getTemplate(templateId);
-            template.setValid(true);
-            template.set({
-                left: 0,
-                top: 0
-            });
-            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
-            rasterizer.add(template);
 
-            var template = TemplateFactory.getTemplate(templateId);
-            template.setValid(false);
-            template.set({
-                left: 7 * GRID_SIZE,
-                top: 0
+            var component = new Component({ templateId: $(this).data("templateid") });
+            var view = new ComponentView({
+                options: { canvas: rasterizer, GRID_SIZE: GRID_SIZE },
+                model: component
             });
-            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
-            rasterizer.add(template);
+            view.render();        
+
+            component = new Component({ templateId: $(this).data("templateid"), x: 7 });
+            view = new ComponentView({
+                options: { canvas: rasterizer, GRID_SIZE: GRID_SIZE },
+                model: component
+            });
+            view.render(false);   
+            
             $(this).css("width", 7 * GRID_SIZE);
             $(this).css("height", 5 * GRID_SIZE);
             $(this).css("background-image", "url(" + rasterizer.toDataURL() + ")");

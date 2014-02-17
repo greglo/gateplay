@@ -63,6 +63,7 @@ define([
             })(this.canvas.bringToFront);
 
             this.canvas.on("object:over", function(target) {
+                console.log(target);
                 if (typeof target.class != "undefined") {
                     switch (target.class) {
                         case "input":
@@ -88,6 +89,7 @@ define([
                 if (view.lastMove.isValid) {
                     view.lastMove.start.x = view.lastMove.object.getLeft();
                     view.lastMove.start.y = view.lastMove.object.getTop();
+                    //view.render();
                 } else if (view.lastMove.object != null) {
                     view.lastMove.object.set({
                         left: view.lastMove.start.x,
@@ -169,7 +171,7 @@ define([
         _updateLocation: function(target) {
             if (target != null) {
                 var GRID_SIZE = this.options.GRID_SIZE;
-                var targetWidth = target.getWidth();
+                var targetWidth = target.getWidth() + 2 * GRID_SIZE;
                 var targetHeight = target.getHeight();
 
                 // Objects can be defined by their top left corner, their center, etc...
@@ -187,9 +189,9 @@ define([
                     shiftTop = targetHeight / 2;
                 }
                 else if (target.originX == "left") {
-                    normalisedLeft = Math.round(target.left / GRID_SIZE) * GRID_SIZE;
+                    normalisedLeft = (Math.round(target.left / GRID_SIZE) - 1) * GRID_SIZE;
                     normalisedTop = Math.round(target.top / GRID_SIZE) * GRID_SIZE;
-                    shiftLeft = 0;
+                    shiftLeft = GRID_SIZE;
                     shiftTop = 0;
                 }
                 else
@@ -216,7 +218,7 @@ define([
                     // Individual component has been moved
                     var newX = Math.round(normalisedLeft / GRID_SIZE);
                     var newY = Math.round(normalisedTop / GRID_SIZE);
-                    this.canvas.fire("gate:moving", {id: target.componentId, left: normalisedLeft, top: normalisedTop});
+                    this.canvas.fire("gate:moving", {id: target.componentId, left: normalisedLeft + GRID_SIZE, top: normalisedTop});
                     this.lastMove.isValid = this.options.circuit.moveComponentById(target.componentId, newX, newY);
                     target.setValid(this.lastMove.isValid);
 

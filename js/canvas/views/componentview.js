@@ -9,13 +9,10 @@ define([
         },
 
         render : function(forceValidity) {
-            this.model.set("inputCount", 2);
-            this.model.set("height", 5)
-            
-            var template = TemplateFactory.getTemplate(this.model.get("templateId"), this.model.get("width"), this.model.get("height"));
+            var template = TemplateFactory.getTemplate(this.model.get("templateId"), this.model.get("width") - 2, this.model.get("height"));
             
             template.set({
-                left: this.model.get("x") * this.options.GRID_SIZE,
+                left: (this.model.get("x") + 1) * this.options.GRID_SIZE,
                 top: this.model.get("y") * this.options.GRID_SIZE,
             });
 
@@ -50,7 +47,7 @@ define([
             var wire = TemplateFactory.getWire();
             wire.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
             wire.set({
-                left: template.getLeft(),
+                left: template.getLeft() - this.options.GRID_SIZE,
                 top: template.getTop() + yOffset
             });
 
@@ -62,9 +59,11 @@ define([
             this.options.canvas.on("gate:moving", function(e) {
                 if (e.id == wire.componentId) {
                     wire.set({
-                        left: e.left,
+                        left: e.left - v.options.GRID_SIZE,
                         top: e.top + yOffset
                     });
+                    console.log(wire);
+                    wire.saveState();
                 }
             })
             this.options.canvas.on("gate:front", function(target) {

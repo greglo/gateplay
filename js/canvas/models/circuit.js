@@ -21,6 +21,8 @@ define([
                 }
             }
             this.set("locationMap", emptyLocationMap);
+
+            this.set("wireMap", {});
         },
 
         isEmptyRect: function(x, y, width, height) {
@@ -45,12 +47,17 @@ define([
 
             this._setPoints(points, c.id);
             this.get("components").add(c);
+
+            var wireMap = this.get("wireMap");
+            wireMap[c.id] = [];
         },
 
         removeComponent: function(c) {
             this._setPoints(this._getComponentPoints(c), -1);
             this.get("components").remove(c);
-        },
+            var wireMap = this.get("wireMap");
+            wireMap[c.id] = undefined;
+            },
 
         moveComponentById: function(id, newX, newY) {
             var transformations = [{

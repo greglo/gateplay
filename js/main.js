@@ -6,9 +6,10 @@ define([
     "canvas/models/circuit",
     "canvas/models/component",
     "canvas/views/circuitview",
-    "canvas/views/templates/templatefactory"
+    "canvas/views/componentview",
+    "sim/circuit",
 ], 
-function($, ui, Foundation, fabric, Circuit, Component, CircuitView, TemplateFactory) {
+function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentView, SimCircuit) {
     var GRID_SIZE = 16;
 
     $(function() {
@@ -38,30 +39,54 @@ function($, ui, Foundation, fabric, Circuit, Component, CircuitView, TemplateFac
             circuit: circuit,
         });
 
+        var simcircuit = new SimCircuit();
+        simcircuit.initialize();
+        simcircuit.addComponent(0, "on", 0, 1);
+        simcircuit.initialize();
+
         // Create image files for each gate
         $("#rasterizer").attr("width", 2 * 7 * GRID_SIZE);
         $("#rasterizer").attr("height", 5 * GRID_SIZE);
+        
         var rasterizer = new fabric.StaticCanvas("rasterizer");
         $(".gate").each(function() {
             rasterizer.clear();
+            
             var templateId = $(this).data("templateid");
-            var template = TemplateFactory.getTemplate(templateId);
-            template.setValid(true);
-            template.set({
-                left: 0,
-                top: 0
+            var validGate = new Component({
+                templateId: templateId,
+                canvas: rasterizer,
+                x: 0,
+                y: 0,
+                isValid: true
             });
-            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
-            rasterizer.add(template);
+            var validView = new ComponentView({
+                model: validGate,
+                options: {
+                    GRID_SIZE: GRID_SIZE,
+                    canvas: rasterizer
+                }
+            });
+            validView.render();
 
-            var template = TemplateFactory.getTemplate(templateId);
-            template.setValid(false);
-            template.set({
-                left: 7 * GRID_SIZE,
-                top: 0
+            var templateId = $(this).data("templateid");
+            var validGate = new Component({
+                templateId: templateId,
+                canvas: rasterizer,
+                x: validGate.get("width"),
+                y: 0,
+                isValid: false
             });
-            template.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
-            rasterizer.add(template);
+            var validView = new ComponentView({
+                model: validGate,
+                options: {
+                    GRID_SIZE: GRID_SIZE,
+                    canvas: rasterizer
+                }
+            });
+            validView.render();
+
+
             $(this).css("width", 7 * GRID_SIZE);
             $(this).css("height", 5 * GRID_SIZE);
             $(this).css("background-image", "url(" + rasterizer.toDataURL() + ")");

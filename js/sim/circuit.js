@@ -1,15 +1,18 @@
 var nextId = 0;
 define([
     "underscore",
+    "priorityqueue",
     "sim/component",
     "sim/wire",
     "sim/circuitevent",
-], function(_, Component, Wire, CircuitEvent) {
+], function(_, PriorityQueue, Component, Wire, CircuitEvent) {
     function Circuit() {
         this._components = {};
         this._wires = {};
-        this._events = {};
         this._clock = 0;
+        this._events = new PriorityQueue({comparator: function(e1, e2) {
+            return e2.eventTime - e1.eventTime;
+        }});
     }
 
     Circuit.prototype.containsComponent = function(id) {
@@ -70,7 +73,10 @@ define([
         if (initialCount === 0) {
             console.warn("No initial components in the circuit");
         }
+    };
 
+    Circuit.prototype.tick = function() {
+        
     };
 
     Circuit.prototype._addEvent = function(circuitEvent) {

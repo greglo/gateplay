@@ -3,8 +3,8 @@ define([
     "sim/truthvalue"
 ], function(TruthValue) {
     function CircuitEvent(eventTime, sourceId, sourcePort, truthValue) {
-        this.eventTime = sourceId;
-        this.sourceId = sourcePort;
+        this.eventTime = eventTime;
+        this.sourceId = sourceId;
         this.sourcePort = sourcePort;
         this.truthValue = truthValue;
     }

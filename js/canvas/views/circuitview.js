@@ -8,10 +8,44 @@ define([
 ], function(_, Backbone, fabric, Circuit, ComponentView, ComponentSetView) {
     return Backbone.View.extend({
 
-        lastMove: {
-            object: null,
-            isValid: false,
-            start: {}
+        _mouseData: {
+            eventType: "",              // "move", "draw"
+            startObject: null,
+            innerOffsetX: null,
+            innerOffsetY: null,
+            startX: null,
+            startY: null,
+            isDown: false,
+            isValidMove: false
+        },
+
+        _temporaryWire: null,
+
+        //mouse: {
+        //    startX: null,
+        //    startY: null,
+        //    isDown: false,
+        //    hoverObject: null
+        //},
+
+        //lastMove: {
+        //    isValid: false,
+        //},
+
+        getMouseData: function(identifier) {
+            return this._mouseData[identifier];
+        },
+
+        setMouseData: function(identifier, value) {
+            this._mouseData[identifier] = value;
+        },
+
+        getTemporaryWire: function() {
+            return this._temporaryWire;
+        },
+
+        setTemporaryWire: function(c) {
+            this._temporaryWire = c;
         },
 
         initialize: function(options) {
@@ -31,37 +65,165 @@ define([
 
             var view = this;
 
-            this.options.canvas.on('mouse:up', function(meta) { 
-                if (view.lastMove.isValid) {
-                    view.lastMove.start.x = view.lastMove.object.getLeft();
-                    view.lastMove.start.y = view.lastMove.object.getTop();
-                } else if (view.lastMove.object != null) {
-                    view.lastMove.object.set({
-                        left: view.lastMove.start.x,
-                        top: view.lastMove.start.y,
-                    });
-                    view._updateLocation(view.lastMove.object);
-                    // Rendering the object alone is not enough as it leaves a "ghost" image
-                    // So we renderAll()
-                    view.options.canvas.renderAll();
+            this.options.canvas.findTarget = (function(originalFn) {
+                return function() {
+                    var target = originalFn.apply(this, arguments);
+                    var e = arguments[0];
+                    if (target) {
+                        target.fire("mouseover", e);
+                        this.fire("object:hover", {e: e, target: target});
+                        if (this._hoveredTarget !== target) {
+                            if (this._hoveredTarget) {
+                                this.fire("object:out", this._hoveredTarget);
+                                this._hoveredTarget.fire("mouseout", e);
+                            }
+                        }
+                        this._hoveredTarget = target;
+                    } else if (this._hoveredTarget) {
+                        this.fire("object:out", this._hoveredTarget);
+                        this._hoveredTarget.fire("mouseout", e);
+                        this._hoveredTarget = null;
+                    }
+                    return target;
+                };
+            })(this.options.canvas.findTarget);
+
+            this.options.canvas.on("mouse:down", function(e) {
+                // If port flag set, then set dragging wire flag
+
+                var pointer = view.options.canvas.getPointer(e.e);
+                view.setMouseData("isDown", true);
+                view.setMouseData("startX", pointer.x);
+                view.setMouseData("startY", pointer.y);
+
+                var startObject = view.getMouseData("startObject");
+                if (startObject) {
+                    view.setMouseData("innerOffsetX", pointer.x - startObject.getLeft());
+                    view.setMouseData("innerOffsetY", pointer.y - startObject.getTop());
+                }
+
+                switch (view.getMouseData("eventType")) {
+                    case "move":
+
+                        break;
+
+                    case "draw":
+                        console.log("Started drawing wire");
+                        break;
+                }
+            });
+
+            this.options.canvas.on('mouse:up', function(upEvent) { 
+                // If dragging wire, check destination location
+                view.setMouseData("isDown", false);
+
+                var eventType = view.getMouseData("eventType");
+                var startObject = view.getMouseData("startObject");
+                switch (eventType) {
+                    case "move":
+                        // If we made an invalid move, set the object back to its original position
+                        if (startObject && !view.getMouseData("isValidMove")) {
+                            startObject.set({
+                                left: view.getMouseData("startX") - view.getMouseData("innerOffsetX"),
+                                top: view.getMouseData("startY") - view.getMouseData("innerOffsetY")
+                            });
+                            view._updateLocation(startObject);
+                        }
+                        break;
+
+                    case "draw":
+                        var endObject = view.options.canvas.findTarget(upEvent.e, true);
+                        console.log(endObject);
+                        break;
                 }
             });    
 
-            this.options.canvas.on('object:selected', function(meta) {
-                view.lastMove.object = meta.target;
-                view.lastMove.object.hasControls = false;
+            this.options.canvas.on("mouse:move", function(moveEvent) {
+                // If dragging wire, draw the wire?
+                var eventType = view.getMouseData("eventType");
+                var startObject = view.getMouseData("startObject");
+                if (startObject && view.getMouseData("isDown")) {
+                    switch (eventType) {
+                        case "move":
+                            var pointer = view.options.canvas.getPointer(moveEvent.e);
+                            startObject.set({
+                                left: pointer.x - view.getMouseData("innerOffsetX"),
+                                top: pointer.y - view.getMouseData("innerOffsetY"),
+                            });
+                            view._updateLocation(startObject);
+                            break;
 
-                // If we are selecting a single object, bring it to the front
-                if (typeof meta.target.id != "undefined") {
-                    meta.target.bringToFront();
+                        case "draw":
+                            console.log("Drawing line from");
+                            view.options.canvas.remove(view.getTemporaryWire());
+                            var x1 = view.getMouseData("startX");
+                            var y1 = view.getMouseData("startY");
+                            var pointer = view.options.canvas.getPointer(moveEvent.e);
+                            console.log(x1);
+                            var wire = new fabric.Line([x1, y1, pointer.x, pointer.y], {
+                                strokeWidth: view.options.GRID_SIZE,
+                                stroke: "black",
+                                originX: "center",
+                                originY: "center",
+                                selectable: false
+                            });
+                            view.setTemporaryWire(wire);
+                            view.options.canvas.add(wire);
+                            break;
+                    }
                 }
-                view.lastMove.start.x = view.lastMove.object.getLeft();
-                view.lastMove.start.y = view.lastMove.object.getTop();
+            });
+
+            this.options.canvas.on("object:hover", function(hoverEvent) {
+                var pointer = view.options.canvas.getPointer(hoverEvent.e);
+                var target = hoverEvent.target;
+                var GRID_SIZE = view.options.GRID_SIZE;
+
+                // Look to see if we are hovering over a gate
+                view.setMouseData("eventType", "move");
+                if (target.class === "gate") {
+                    var left = pointer.x - target.getLeft();
+                    var top = pointer.y - target.getTop();
+                    var model = view.options.components.get(target.id);
+                    if (left < GRID_SIZE && Math.floor(top / GRID_SIZE) % 2 == 1) {
+                        var inputIndex = Math.floor(top / (2 * GRID_SIZE));
+                        model.setActiveInput(inputIndex);
+                        view.setMouseData("eventType", "draw");
+                    } else if (false) {
+
+                        view.setMouseData("eventType", "draw");
+                    } else {
+                        model.clearActivePort();
+                        view.setMouseData("eventType", "move");
+                    }
+                }
+                view.setMouseData("startObject", target);
+            });
+
+            this.options.canvas.on("object:out", function(target) {
+                // If we just left a gate, clear its active port                
+                if (target.class === "gate") {
+                    var model = view.options.components.get(target.id);
+                    model.clearActivePort();
+                }
+
+                // Clear hover object, if we haven't already changed it
+                if (view.getMouseData("startObject") === target)
+                    view.setMouseData("startObject", null);
+            });
+
+            this.options.canvas.on('object:selected', function(selectedEvent) {
+                selectedEvent.target.hasControls = false;
+
+                // If we are selecting a single gate, bring it to the front
+                if (selectedEvent.target.class === "gate") {
+                    selectedEvent.target.bringToFront();
+                }
             });     
 
-            this.options.canvas.on('selection:created', function(meta) {
+            this.options.canvas.on('selection:created', function(e) {
                 // If we are selecting multiple objects, bring each of them to the front in turn
-                _.each(meta.target.objects, function(object) {
+                _.each(e.target.objects, function(object) {
                     object.bringToFront();
                 });
             });   
@@ -69,8 +231,8 @@ define([
 
             // Snap moving objects to grid
             // http://jsfiddle.net/fabricjs/S9sLu/
-            this.options.canvas.on('object:moving', function(meta) {
-                view._updateLocation(meta.target)
+            this.options.canvas.on('object:moving', function(e) {
+                //view._updateLocation(e.target)
             });
 
             this.render();
@@ -114,12 +276,13 @@ define([
                 options: this.options,
                 model: c
             });
-            view.render(this.options.canvas); 
+            view.render(); 
         },
 
         _updateLocation: function(target) {
             if (target != null) {
                 var GRID_SIZE = this.options.GRID_SIZE;
+                var model = this.comp
                 var targetWidth = target.getWidth();
                 var targetHeight = target.getHeight();
 
@@ -165,10 +328,11 @@ define([
 
                 if (typeof target.id != "undefined") {
                     // Individual component has been moved
-                    var newX = normalisedLeft / GRID_SIZE;
-                    var newY = normalisedTop / GRID_SIZE;
-                    this.lastMove.isValid = this.options.circuit.moveComponentById(target.id, newX, newY);
-                    target.setValid(this.lastMove.isValid)
+                    var newX = Math.round(normalisedLeft / GRID_SIZE);
+                    var newY = Math.round(normalisedTop / GRID_SIZE);
+                    var isValid = this.options.circuit.moveComponentById(target.id, newX, newY);
+                    this.setMouseData("isValidMove", isValid);
+                    this.options.components.get(target.id).set("isValid", isValid);
 
                 } else if (typeof target.objects != "undefined") {
                     // Component selection has been moved
@@ -184,11 +348,11 @@ define([
                         });
                     });
                     var isValid = this.options.circuit.moveGroupByIds(transformations);
-                    this.lastMove.isValid = isValid;
+                    this.setMouseData("isValidMove", isValid);
 
                     _.each(target.objects, function(c) {
-                        c.setValid(isValid);
-                    });
+                        this.options.components.get(c.id).set("isValid", isValid);
+                    }, this);
                 }
                 else
                     throw "Unrecognised object type"

@@ -9,9 +9,40 @@ define([
                 id: nextId++,
                 x: 0,
                 y: 0,
+                inputCount: 2,
+                outputCount: 1,
                 width: 7,
-                height: 5
+                isValid: true,
+                activeInputIndex: -1,
+                activeOutputIndex: -1
             }
+        },
+
+        getHeight: function() {
+            return Math.max(this.get("inputCount"), this.get("outputCount")) * 2 + 1;
+        },
+
+        setActiveInput: function(index) {
+            if (0 <= index && index < this.get("inputCount")) {
+                this.set("activeInputIndex", index);
+            } else {
+                this.set("activeInputIndex", -1);
+            }
+            this.set("activeOutputIndex", -1);
+        },
+
+        setActiveOutput: function(index) {
+            if (0 <= index && index < this.get("outputCount")) {
+                this.set("activeOutputIndex", index);
+            } else {
+                this.set("activeOutputIndex", -1);
+            }
+            this.set("activeInputIndex", -1);
+        },
+
+        clearActivePort: function() {
+            this.set("activeInputIndex", -1);
+            this.set("activeOutputIndex", -1);
         }
     });
 });

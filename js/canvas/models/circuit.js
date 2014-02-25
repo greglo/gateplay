@@ -156,7 +156,8 @@ define([
                 return false;
             if (point.y < 0 || point.y >= this.get("height"))
                 return false;
-
+            if (!this.get("locationMap")[point.x])
+                console.log(point.x);
             var actualId = this.get("locationMap")[point.x][point.y];
             return actualId == -1 || _.contains(allowedIds, actualId);
         }

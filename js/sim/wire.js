@@ -8,6 +8,7 @@ define([
         this.destId = destId;
         this.destPort = destPort;
         this.truthValue = TruthValue.UNKNOWN;
+        this.stableSince = 0;
     }
 
     return Wire;

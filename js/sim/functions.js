@@ -39,22 +39,51 @@ define([
         throw "_doEvaluate not implemented on EvaluationFunction, you must override it";
     }
     EvaluationFunction.prototype.getDelay = function() {
-        return 10;
+        return 5;
     }
     EvaluationFunction.prototype.getMaxUncertaintyDuration = function() {
-        return 1;
+        return 3;
     }
 
     function On() {
+        EvaluationFunction.apply(this, arguments);
     }
-    On.prototype = EvaluationFunction.prototype;
+    On.prototype = new EvaluationFunction();
     On.prototype._doEvaluate = function(argList) {
         return [TruthValue.TRUE];
     };
 
-    function And() {
+    function Off() {
+        EvaluationFunction.apply(this, arguments);
     }
-    And.prototype = EvaluationFunction.prototype;
+    Off.prototype = new EvaluationFunction();
+    Off.prototype._doEvaluate = function(argList) {
+        return [TruthValue.FALSE];
+    };
+
+    function Not() {
+        EvaluationFunction.apply(this, arguments);
+    }
+    Not.prototype = new EvaluationFunction();
+    Not.prototype._doEvaluate = function(argList) {
+        var outputs = [];
+        for (var i = 0; i < argList.length; i++) {
+            var v = argList[i];
+            if (v === TruthValue.TRUE) {
+                outputs.push(TruthValue.FALSE);
+            } else if (v === TruthValue.FALSE) {
+                outputs.push(TruthValue.TRUE);
+            } else {
+                outputs.push(TruthValue.UNKNOWN)
+            }
+        }
+        return outputs;
+    };
+
+    function And() {
+        EvaluationFunction.apply(this, arguments);
+    }
+    And.prototype = new EvaluationFunction();
     And.prototype._doEvaluate = function(argList) {
         var onlyTrue = true;
 
@@ -75,6 +104,8 @@ define([
 
     var fs = new FunctionStore();
     fs.put("on", new On());
+    fs.put("off", new Off());
+    fs.put("not", new Not());
     fs.put("and", new And());
 
     return fs;

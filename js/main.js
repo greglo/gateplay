@@ -40,9 +40,17 @@ function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentVi
         });
 
         var simcircuit = new SimCircuit();
+        simcircuit.addComponent(0, "not", 1, 1);
+        simcircuit.addComponent(1, "not", 1, 1);
+        simcircuit.addComponent(2, "not", 1, 1);
+        simcircuit.addWire(0, 0, 1, 0);
+        simcircuit.addWire(1, 0, 2, 0);
+        simcircuit.addWire(2, 0, 0, 0);
+
+
         simcircuit.initialize();
-        simcircuit.addComponent(0, "on", 0, 1);
-        simcircuit.initialize();
+        for (var i = 0; i < 500; i++)
+            simcircuit.tick();
 
         // Create image files for each gate
         $("#rasterizer").attr("width", 2 * 7 * GRID_SIZE);

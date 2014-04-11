@@ -75,7 +75,6 @@ define([
     Circuit.prototype.setWireValue = function(componentId, port, truthValue) {
         var wire = this.getWire(componentId, port);
         wire.truthValue = truthValue;
-        wire.stableSince = this._clock;
     };
 
     Circuit.prototype.initialize = function() {
@@ -102,31 +101,39 @@ define([
     };
 
     Circuit.prototype.tick = function() {
-        while(this._events.length > 0 && this._events.peek().eventTime <= this._clock) {
+        // Pop all events which need to be processed
+        while (this._events.length > 0 && this._events.peek().eventTime <= this._clock) {
             var e = this._events.dequeue();
-            var wire = this.getWire(e.sourceId, e.sourcePort);
-            if (wire && e.truthValue !== wire.truthValue) {
-                var c = this.getComponent(wire.destId);
-                c.setFlagged(false);
-                var requiredStableSince = Math.max(0, e.eventTime - c.getDelay());
-                if (true) {
-                    wire.truthValue = e.truthValue
-                    var outputs = c.evaluateOneInputChanged(wire.destPort, wire.truthValue);
-                    // check to see if outputs have changed
-                    for (var i = 0; i < outputs.length; i++) {
-                        var w = this.getWire(wire.destId, i);
-                        this.getComponent(w.destId).setFlagged(true);
-                        if (w && w.truthValue != outputs[i]) {
+            var eventWire = this.getWire(e.sourceId, e.sourcePort);
+
+            // TODO: factor out into a method
+
+            // If the event is changing something in the circuit
+            if (eventWire && e.truthValue !== eventWire.truthValue) {
+                eventWire.truthValue = e.truthValue;
+                var c = this.getComponent(eventWire.destId);
+                var outputs = c.evaluateOneInputChanged(eventWire.destPort, eventWire.truthValue);
+                
+                // Generate new events for each output which changed
+                for (var i = 0; i < outputs.length; i++) {
+
+                    var outputWire = this.getWire(eventWire.destId, i);
+
+                    if (this._clock >= outputWire.unstableUntil) {
+
+                        if (outputWire && outputWire.truthValue !== outputs[i]) {
                             var unknownEvent = new CircuitEvent(e.eventTime + c.getDelay(), c._id, i, TruthValue.UNKNOWN);
                             this._addEvent(unknownEvent);
-                            var delta = Math.floor(Math.random() * c.getDelayUncertainty() + 1);
-                            delta = c.getDelayUncertainty();
-                            var knownEvent = new CircuitEvent(e.eventTime + c.getDelay() + delta, c._id, i, outputs[i]);
-                            this._addEvent(knownEvent);
+
+                            outputWire.unstableUntil = (e.eventTime + c.getDelay() + c.getDelayUncertainty());
+
+                            // Only add the second event if it is not a duplicate of the first
+                            if (outputs[i] !== TruthValue.UNKNOWN) {
+                                var knownEvent = new CircuitEvent(e.eventTime + c.getDelay() + c.getDelayUncertainty(), c._id, i, outputs[i]);
+                                this._addEvent(knownEvent);
+                            }
                         }
                     }
-                } else {
-                    console.log("REJECTED");
                 }
             }
         }

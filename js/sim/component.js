@@ -8,7 +8,6 @@ define([
         this._funcId = funcId;
         this._inputCount = inputCount;
         this._outputCount = outputCount;
-        this._flagged = false;
 
         this._evalFunc = Functions.get(funcId);
         this._cachedInputs = [];
@@ -22,14 +21,6 @@ define([
 
     Component.prototype.getOutputCount = function() {
         return this._outputCount;
-    };
-
-    Component.prototype.getFlagged = function() {
-        return this._flagged;
-    };
-
-    Component.prototype.setFlagged = function(flagged) {
-        this._flagged = flagged;
     };
 
     Component.prototype.getDelay = function() {

@@ -122,7 +122,7 @@ define([
                 switch (eventType) {
                     case "move":
                         // If we made an invalid move, set the object back to its original position
-                        if (startObject && !view.getMouseData("isValidMove")) {
+                        if (startObject && view._isValidTarget(startObject) && !view.getMouseData("isValidMove")) {
                             startObject.set({
                                 left: view.getMouseData("startX") - view.getMouseData("innerOffsetX"),
                                 top: view.getMouseData("startY") - view.getMouseData("innerOffsetY")
@@ -145,12 +145,15 @@ define([
                 if (startObject && view.getMouseData("isDown")) {
                     switch (eventType) {
                         case "move":
-                            var pointer = view.options.canvas.getPointer(moveEvent.e);
-                            startObject.set({
-                                left: pointer.x - view.getMouseData("innerOffsetX"),
-                                top: pointer.y - view.getMouseData("innerOffsetY"),
-                            });
-                            view._updateLocation(startObject);
+                            if (view._isValidTarget(startObject)) {
+                                var pointer = view.options.canvas.getPointer(moveEvent.e);
+                                startObject.set({
+                                    left: pointer.x - view.getMouseData("innerOffsetX"),
+                                    top: pointer.y - view.getMouseData("innerOffsetY"),
+                                });
+                                console.log("move");
+                                view._updateLocation(startObject);
+                            }
                             break;
 
                         case "draw":
@@ -226,13 +229,6 @@ define([
                 });
             });   
 
-
-            // Snap moving objects to grid
-            // http://jsfiddle.net/fabricjs/S9sLu/
-            this.options.canvas.on('object:moving', function(e) {
-                //view._updateLocation(e.target)
-            });
-
             this.render();
         },
 
@@ -277,8 +273,17 @@ define([
             view.render(); 
         },
 
+        _isValidTarget: function(target) {
+            if (!target && typeof target != "undefined")
+                return false;
+
+            var validOrigin = target.originX === "center" || target.originX === "left";
+            var isGatePlayObject = typeof target.id != "undefined" || typeof target.objects != "undefined";
+            return validOrigin && isGatePlayObject;
+        },
+
         _updateLocation: function(target) {
-            if (target != null) {
+            if (target != null && this._isValidTarget(target)) {
                 var GRID_SIZE = this.options.GRID_SIZE;
                 var model = this.comp
                 var targetWidth = target.getWidth();
@@ -292,20 +297,18 @@ define([
                 var shiftTop;
 
                 // Normalise according by moving all positions into a top-left coordinate system
-                if (target.originX == "center") {
+                if (target.originX === "center") {
                     normalisedLeft = Math.round((2 * target.left - targetWidth) / (2 * GRID_SIZE)) * GRID_SIZE;
                     normalisedTop = Math.round((2 * target.top - targetHeight) / (2 * GRID_SIZE)) * GRID_SIZE;
                     shiftLeft = targetWidth / 2;
                     shiftTop = targetHeight / 2;
                 }
-                else if (target.originX == "left") {
+                else if (target.originX === "left") {
                     normalisedLeft = Math.round(target.left / GRID_SIZE) * GRID_SIZE;
                     normalisedTop = Math.round(target.top / GRID_SIZE) * GRID_SIZE;
                     shiftLeft = 0;
                     shiftTop = 0;
                 }
-                else
-                    throw "Unrecognised object type"
 
                 // Can't move things off the canvas
                 normalisedLeft = Math.max(normalisedLeft, 0);
@@ -351,9 +354,9 @@ define([
                     _.each(target.objects, function(c) {
                         this.options.components.get(c.id).set("isValid", isValid);
                     }, this);
+                } else {
+                    console.log("Unrecognised object type: aborting move");
                 }
-                else
-                    throw "Unrecognised object type"
             }
         }   
     });

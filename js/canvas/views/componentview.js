@@ -25,24 +25,35 @@ define([
                 left:this.options.GRID_SIZE,
                 top: 0,
                 width: (this.model.get("width") - 2) * TemplateFactory.BOX_SIZE,
-                height: 80 * TemplateFactory.BOX_SIZE / this.options.GRID_SIZE,
+                height: (this.model.getHeight() + 0) * TemplateFactory.BOX_SIZE,
             });
             objects.push(gate);
 
-
-            var top = this.options.GRID_SIZE;
+            var topInput = this.options.GRID_SIZE;
             for (var i = 0; i < this.model.get("inputCount"); i++) {
                 var input = TemplateFactory.getWire();
                 input.set({
                     left: 0,
-                    top: top,
+                    top: topInput,
                 })
                 input.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
                 this._inputs.push(input);
-                top += this.options.GRID_SIZE * 2;
+                topInput += this.options.GRID_SIZE * 2;
             }
-
             objects = objects.concat(this._inputs);
+
+            // TODO: assume only 1 output
+            for (var i = 0; i < this.model.get("outputCount"); i++) {
+                var output = TemplateFactory.getWire();
+                output.set({
+                    left: (this.model.get("width") - 1) * this.options.GRID_SIZE,
+                    top: (this.model.get("inputCount")) * this.options.GRID_SIZE,
+                })
+                output.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
+                this._outputs.push(output);
+            }
+            objects = objects.concat(this._outputs);
+
             this._template = new fabric.Group(objects);
 
             // We associate the canvas element with its backbone model

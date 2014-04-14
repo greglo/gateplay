@@ -2,9 +2,13 @@ define([
     "underscore",
     "backbone",
     "canvas/models/component",
-    "canvas/collections/componentset"
-], function(_, Backbone, Component, ComponentSet) {
+    "canvas/collections/componentset",
+    "canvas/collections/wireset"
+], function(_, Backbone, Component, ComponentSet, WireSet) {
     return Backbone.Model.extend({
+        EMPTY: -1,
+        WIRE: -2,
+
         initialize: function(options) {
             if (typeof options.width == "undefined" || options.width < 0)
                 throw "Circuit requires a valid width argument";
@@ -12,12 +16,13 @@ define([
                 throw "Circuit requires a valid height argument";
 
             this.set("components", new ComponentSet());
+            this.set("wires", new WireSet());
 
             var emptyLocationMap = [];
             for (var x = 0; x < options.width; x++) {
                 emptyLocationMap[x] = [];
                 for (var y = 0; y < options.height; y++) {
-                    emptyLocationMap[x][y] = -1;
+                    emptyLocationMap[x][y] = this.EMPTY;
                 }
             }
             this.set("locationMap", emptyLocationMap);
@@ -28,12 +33,13 @@ define([
             return this._areValidPoints(points, []);
         },
 
-        addComponent: function(x, y, width, height, templateId) {
+        addComponent: function(x, y, width, inputCount, outputCount, templateId) {
             var c = new Component({
                 x: x,
                 y: y,
                 width: width,
-                height: height,
+                inputCount: inputCount,
+                outputCount: outputCount,
                 templateId: templateId
             })
 
@@ -48,7 +54,7 @@ define([
         },
 
         removeComponent: function(c) {
-            this._setPoints(this._getComponentPoints(c), -1);
+            this._setPoints(this._getComponentPoints(c), this.EMPTY);
             this.get("components").remove(c);
         },
 
@@ -79,7 +85,7 @@ define([
                 var t = transformations[i];
                 var c = components.get(t.id);
 
-                var points = this._getPointsInRect(t.newX, t.newY, c.get("width"), c.get("height"));
+                var points = this._getPointsInRect(t.newX, t.newY, c.get("width"), c.getHeight());
                 var valid = this._areValidPoints(points, validIds);
 
                 if (!valid)
@@ -107,7 +113,7 @@ define([
         },
 
         _getComponentPoints: function(c) {
-            return this._getPointsInRect(c.get("x"), c.get("y"), c.get("width"), c.get("height"));
+            return this._getPointsInRect(c.get("x"), c.get("y"), c.get("width"), c.getHeight());
         },
 
         _getPointsInRect: function(x, y, width, height) {
@@ -129,7 +135,7 @@ define([
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
                 if (map[point.x][point.y] == id)
-                    map[point.x][point.y] = -1;
+                    map[point.x][point.y] = this.EMPTY;
             }
         },
 
@@ -159,7 +165,7 @@ define([
             if (!this.get("locationMap")[point.x])
                 console.log(point.x);
             var actualId = this.get("locationMap")[point.x][point.y];
-            return actualId == -1 || _.contains(allowedIds, actualId);
+            return actualId == this.EMPTY || _.contains(allowedIds, actualId);
         }
     });
 })

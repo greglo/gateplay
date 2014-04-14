@@ -154,12 +154,10 @@ define([
                             break;
 
                         case "draw":
-                            console.log("Drawing line from");
                             view.options.canvas.remove(view.getTemporaryWire());
                             var x1 = view.getMouseData("startX");
                             var y1 = view.getMouseData("startY");
                             var pointer = view.options.canvas.getPointer(moveEvent.e);
-                            console.log(x1);
                             var wire = new fabric.Line([x1, y1, pointer.x, pointer.y], {
                                 strokeWidth: view.options.GRID_SIZE,
                                 stroke: "black",

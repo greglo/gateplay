@@ -8,8 +8,9 @@ define([
     "canvas/views/circuitview",
     "canvas/views/componentview",
     "sim/circuit",
+    "circuitadapter"
 ], 
-function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentView, SimCircuit) {
+function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentView, SimCircuit, CircuitAdapter) {
     var GRID_SIZE = 16;
 
     $(function() {
@@ -33,11 +34,16 @@ function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentVi
             height: gridHeight
         });
 
+        circuit.addComponent(0, 0, 7, 3, 1, "and");
+
         // Create canvas view
         var v = new CircuitView({
             GRID_SIZE: GRID_SIZE,
             circuit: circuit,
         });
+
+        var bridge = new CircuitAdapter();
+        bridge.createModelFromView(circuit);
 
         var simcircuit = new SimCircuit();
         simcircuit.addComponent(0, "not", 1, 1);
@@ -167,7 +173,8 @@ function($, ui, Foundation, fabric, Circuit, Component, CircuitView, ComponentVi
                     Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
                     Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
                     7,
-                    5,
+                    $(ui.helper).data("inputCount"),
+                    $(ui.helper).data("outputCount"),
                     $(ui.helper).data("templateid")
                 );
             }, 

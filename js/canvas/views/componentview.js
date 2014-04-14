@@ -19,7 +19,7 @@ define([
 
         render : function() {
             var objects = [];
-            var gate = TemplateFactory.getTemplate(this.model.get("templateId"));
+            var gate = TemplateFactory.getTemplate(this.model.get("templateId"), this.model.get("width") - 2, this.model.getHeight());
             gate.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
             gate.set({
                 left:this.options.GRID_SIZE,

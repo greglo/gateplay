@@ -20,11 +20,11 @@ define([
             return wire;
         },
 
-        getTemplate: function(templateId) {
+        getTemplate: function(templateId, width, height) {
             var boxSize = this.BOX_SIZE;
 
-            var width = 5 * boxSize;
-            var height = 5 * boxSize - this.STROKE_WIDTH;
+            var width = width * boxSize;
+            var height = height * boxSize - this.STROKE_WIDTH;
             var objects = [];
 
 

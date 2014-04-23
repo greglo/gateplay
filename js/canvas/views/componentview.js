@@ -62,12 +62,11 @@ define([
 
             this._template.set({
                 left: this.model.get("x") * this.options.GRID_SIZE,
-                top: this.model.get("y") * this.options.GRID_SIZE
-            });
-            this._template.set({
+                top: this.model.get("y") * this.options.GRID_SIZE,
                 lockMovementX: true,
                 lockMovementY   : true,
             });
+            this._template.hasControls = false;
             this.options.canvas.add(this._template);
             
             this._isValidChanged();

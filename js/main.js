@@ -45,7 +45,6 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
 
         // Save button handler
         $("#save").click(function() {
-            
         });
         
         // Download button handler

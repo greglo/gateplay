@@ -6,7 +6,6 @@ define([
 ], function(_, Backbone, TruthValue) {
     return Backbone.Model.extend({
         defaults: function() {
-            console.log("new wire");
             return {
                 id: nextWireId++,
                 sourceId: -1,

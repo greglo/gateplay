@@ -31,42 +31,47 @@ define([
             this.options.wires.on("add", this._addWire, this);
             this.options.wires.on("remove", this.render, this);
 
+            this.drawBackgroundGrid();
             this.render();
+        },
+
+        drawBackgroundGrid: function() {
+            // Create a background tile to pattern across the back of the canvas
+
+            var rasterizer = new fabric.StaticCanvas("rasterizer");
+            rasterizer.setWidth(this.options.GRID_SIZE);
+            rasterizer.setHeight(this.options.GRID_SIZE);
+
+            rasterizer.add(new fabric.Line([0, 0, 0, this.options.GRID_SIZE], {
+                stroke: '#ccc', 
+                top: 0,
+                left: -0.5
+            }));
+            rasterizer.add(new fabric.Line([0, 0, this.options.GRID_SIZE, 0], {
+                stroke: '#ccc', 
+                top: -0.5,
+                left: 0
+            }));
+
+            var gridImage = rasterizer.toDataURL();
+            this.options.canvas.setBackgroundColor({
+                source: gridImage,
+                repeat: "repeat"
+            }, this.options.canvas.renderAll.bind(this.options.canvas));
+
+            this.options.canvas
         },
 
         render: function() {
             // Clear old canvas
             this.options.canvas.clear();
 
-            // Convenient aliases
-            var GRID_SIZE = this.options.GRID_SIZE;
-            var width = this.options.circuit.get("width") * GRID_SIZE;
-            var height = this.options.circuit.get("height") * GRID_SIZE;
-
-            // Add grid lines to the canvas
-            for (var x = 0; x < width; x += GRID_SIZE)
-                this.options.canvas.add(new fabric.Line([x, 0, x, height], {
-                    stroke: '#ccc', 
-                    selectable: false,
-                    top: 0,
-                    left: x - 0.5
-                }));
-            for (var y = 0; y < height; y += GRID_SIZE)
-                this.options.canvas.add(new fabric.Line([0 , y, width, y], {
-                    stroke: '#ccc', 
-                    selectable: false,
-                    top: y - 0.5,
-                    left: 0
-                }));
-
-            var setViewOptions = this.options;
-            
             // Draw the components on the grid
-            var componentSetView = new ComponentSetView(setViewOptions);
+            var componentSetView = new ComponentSetView(this.options);
             componentSetView.render();
 
             // Draw the wires on the grid
-            var wireSetView = new WireSetView(setViewOptions);
+            var wireSetView = new WireSetView(this.options);
             wireSetView.render();
         },
 

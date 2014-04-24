@@ -69,7 +69,6 @@ function(EditingEventHandler, RunningEventHandler) {
         if (mode === this._applicationState.MODE_EDIT) {
             this._mode = mode;
             this._eventHandler = new EditingEventHandler(this._applicationState, this);
-            console.log(this._eventHandler);
 
         } else if (mode === this._applicationState.MODE_RUN) {
             this._mode = mode;

@@ -2,9 +2,10 @@ define([
     "underscore",
     "backbone",
     "canvas/models/component",
+    "canvas/models/wire",
     "canvas/collections/componentset",
     "canvas/collections/wireset"
-], function(_, Backbone, Component, ComponentSet, WireSet) {
+], function(_, Backbone, Component, Wire, ComponentSet, WireSet) {
     return Backbone.Model.extend({
         EMPTY: -1,
         WIRE: -2,
@@ -41,7 +42,7 @@ define([
                 inputCount: inputCount,
                 outputCount: outputCount,
                 templateId: templateId
-            })
+            });
 
             var points = this._getComponentPoints(c);
             var valid = this._areValidPoints(points, [c.id]);
@@ -56,6 +57,16 @@ define([
         removeComponent: function(c) {
             this._setPoints(this._getComponentPoints(c), this.EMPTY);
             this.get("components").remove(c);
+        },
+
+        addWire: function(sourceId, sourcePort, targetId, targetPort) {
+            var wire = new Wire({
+                sourceId: sourceId,
+                sourcePort: sourcePort,
+                targetId: targetId,
+                targetPort: targetPort
+            });
+            this.get("wires").add(wire);
         },
 
         moveComponentById: function(id, newX, newY) {
@@ -158,12 +169,13 @@ define([
         },
 
         _isValidPoint: function(point, allowedIds) {
-            if (point.x < 0 || point.x >= this.get("width"))
+            if (point.x < 0 || point.x >= this.get("width")) {
                 return false;
-            if (point.y < 0 || point.y >= this.get("height"))
+            }
+            if (point.y < 0 || point.y >= this.get("height")) {
                 return false;
-            if (!this.get("locationMap")[point.x])
-                console.log(point.x);
+            }
+
             var actualId = this.get("locationMap")[point.x][point.y];
             return actualId == this.EMPTY || _.contains(allowedIds, actualId);
         }

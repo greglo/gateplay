@@ -31,6 +31,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
         });
 
         this._canvasController = new CircuitController(this);
+
+        this.addComponent(1, 1, 7, 2, 1, "and");
+        this.addComponent(15, 2, 7, 2, 1, "and");
+        this._canvasModel.addWire(0, 0, 1, 0);
     }
 
     ApplicationState.prototype.getCanvas = function() {
@@ -73,7 +77,6 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
             this.setMode(this.MODE_RUN);
         } else if (this._mode === this.MODE_RUN) {
             this.setMode(this.MODE_EDIT);
-
         }
     };
 

@@ -1,7 +1,7 @@
 define([
     "backbone",
-    "canvas/views/componentview"
-], function(Backbone, ComponentView) {
+    "canvas/views/wireview"
+], function(Backbone, WireView) {
     return Backbone.View.extend({
         initialize: function(options) {
             this.options = options;
@@ -10,8 +10,8 @@ define([
         render: function() {
             var model = this.model;
             var options = this.options;
-            this.options.components.each(function(model) {
-                var view = new ComponentView({
+            this.options.wires.each(function(model) {
+                var view = new WireView({
                     options: options,
                     model: model
                 });

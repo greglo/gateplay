@@ -131,7 +131,6 @@ function(_) {
         if (this._mouse.startObject && this._mouse.isDown) {
             // Do not fire events if we have selected other objects, but start dragging from this one
             if (this._mouse.existingSelection === null || this._mouse.existingSelection === this._mouse.startObject) {
-                console.log(this._mouse.eventType);
                 switch (this._mouse.eventType) {
                     case "move":
                         this._moving(moveEvent);

@@ -5,7 +5,9 @@ define([
     "canvas/models/circuit",
     "canvas/views/componentview",
     "canvas/views/componentsetview",
-], function(_, Backbone, fabric, Circuit, ComponentView, ComponentSetView) {
+    "canvas/views/wireview",
+    "canvas/views/wiresetview",
+], function(_, Backbone, fabric, Circuit, ComponentView, ComponentSetView, WireView, WireSetView) {
     return Backbone.View.extend({
 
         getTemporaryWire: function() {
@@ -20,10 +22,14 @@ define([
             // Store options and aliases
             this.options = options;
             this.options.components = options.circuit.get("components");
+            this.options.wires = options.circuit.get("wires");
 
             // Bind component set change events to handlers
             this.options.components.on("add", this._addComponent, this);
             this.options.components.on("remove", this.render, this);
+
+            this.options.wires.on("add", this._addWire, this);
+            this.options.wires.on("remove", this.render, this);
 
             this.render();
         },
@@ -58,12 +64,24 @@ define([
             // Draw the components on the grid
             var componentSetView = new ComponentSetView(setViewOptions);
             componentSetView.render();
+
+            // Draw the wires on the grid
+            var wireSetView = new WireSetView(setViewOptions);
+            wireSetView.render();
         },
 
         _addComponent: function(c) {
             var view = new ComponentView({
                 options: this.options,
                 model: c
+            });
+            view.render(); 
+        },
+
+        _addWire: function(wire) {
+            var view = new WireView({
+                options: this.options,
+                model: wire
             });
             view.render(); 
         }

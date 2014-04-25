@@ -22,6 +22,20 @@ define([
             return Math.max(this.get("inputCount"), this.get("outputCount")) * 2 + 1;
         },
 
+        getInputCoordinate: function(index) {
+            if (0 <= index && index < this.get("inputCount")) {
+                var midY = this.get("y") + Math.floor(this.getHeight() / 2);
+                return midY + index * 2 - this.get("inputCount") + 1;
+            }
+        },
+
+        getOutputCoordinate: function(index) {
+            if (0 <= index && index < this.get("outputCount")) {
+                var midY = this.get("y") + Math.floor(this.getHeight() / 2);
+                return midY + index * 2 - this.get("outputCount") + 1;
+            }
+        },
+
         setActiveInput: function(index) {
             if (0 <= index && index < this.get("inputCount")) {
                 this.set("activeInputIndex", index);

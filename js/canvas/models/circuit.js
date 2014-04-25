@@ -59,12 +59,13 @@ define([
             this.get("components").remove(c);
         },
 
-        addWire: function(sourceId, sourcePort, targetId, targetPort) {
+        addWire: function(sourceId, sourcePort, targetId, targetPort, fixedPoints) {
             var wire = new Wire({
                 sourceId: sourceId,
                 sourcePort: sourcePort,
                 targetId: targetId,
-                targetPort: targetPort
+                targetPort: targetPort,
+                fixedPoints: fixedPoints
             });
             this.get("wires").add(wire);
         },

@@ -145,10 +145,11 @@ function(_) {
     };
 
     EditingEventHandler.prototype._movingStarted = function() {
+
     }
 
     EditingEventHandler.prototype._moving = function(moveEvent) {
-        if (this._controller.isValidTarget(this._mouse.startObject)) {
+        if (this.isValidTarget(this._mouse.startObject)) {
             var pointer = this._applicationState.getCanvas().getPointer(moveEvent.e);
 
             this._mouse.startObject.set({
@@ -163,7 +164,7 @@ function(_) {
     EditingEventHandler.prototype._movingStopped = function() {
         // If we made an invalid move, set the object back to its original position
         
-        if (this._mouse.startObject && this._controller.isValidTarget(this._mouse.startObject) && !this._mouse.isValidMove) {
+        if (this._mouse.startObject && this.isValidTarget(this._mouse.startObject) && !this._mouse.isValidMove) {
             this._mouse.startObject.set({
                 left: this._mouse.startX - this._mouse.innerOffsetX,
                 top: this._mouse.startY - this._mouse.innerOffsetY
@@ -175,7 +176,16 @@ function(_) {
     EditingEventHandler.prototype._drawingStarted = function() {
     }
 
-    EditingEventHandler.prototype._drawing = function() {
+    EditingEventHandler.prototype._drawing = function(moveEvent) {
+        var pointer = this._applicationState.getCanvas().getPointer(moveEvent.e);
+
+        var GRID_SIZE = this._applicationState.GRID_SIZE;
+        var x = Math.floor(pointer.x / GRID_SIZE);
+        var y = Math.floor(pointer.y / GRID_SIZE);
+
+        console.log(x);
+        console.log(y);
+
         /*
         view.options.canvas.remove(view.getTemporaryWire());
         var x1 = view.getMouseData("startX");
@@ -198,7 +208,7 @@ function(_) {
     };
 
     EditingEventHandler.prototype._updateLocation = function(target) {
-        if (target != null && this._controller.isValidTarget(target)) {
+        if (target != null && this.isValidTarget(target)) {
             var GRID_SIZE = this._applicationState.GRID_SIZE;
             var canvas = this._applicationState.getCanvas();
             var circuit = this._applicationState.getCanvasModel();
@@ -277,6 +287,15 @@ function(_) {
                 console.warn("Unrecognised object type: aborting move");
             }
         }
+    };
+
+    EditingEventHandler.prototype.isValidTarget = function(target) {
+        if (!target && typeof target != "undefined")
+            return false;
+
+        var validOrigin = target.originX === "center" || target.originX === "left";
+        var isGatePlayObject = typeof target.id != "undefined" || typeof target.objects != "undefined";
+        return validOrigin && isGatePlayObject;
     };
 
     return EditingEventHandler;

@@ -55,16 +55,6 @@ function(EditingEventHandler, RunningEventHandler) {
         this._canvas.on("mouse:move", this._mouseMove.bind(this));
     }
 
-
-    CircuitController.prototype.isValidTarget = function(target) {
-        if (!target && typeof target != "undefined")
-            return false;
-
-        var validOrigin = target.originX === "center" || target.originX === "left";
-        var isGatePlayObject = typeof target.id != "undefined" || typeof target.objects != "undefined";
-        return validOrigin && isGatePlayObject;
-    };
-
     CircuitController.prototype._modeChanged = function(mode) {
         if (mode === this._applicationState.MODE_EDIT) {
             this._mode = mode;

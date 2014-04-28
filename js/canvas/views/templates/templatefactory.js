@@ -57,6 +57,30 @@ define([
                     objects.push(poly);
                     break;
 
+                    case "not":
+                    var triangle = new fabric.Triangle({
+                        left: 0,
+                        top: 0,
+                        fill: "white",
+                        width: height,
+                        height: width * 0.75,
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR
+                    });
+                    triangle.set("angle", 90);
+                    objects.push(triangle);
+                    var radius = height / 6;
+                    var circle = new fabric.Circle({
+                        left: width * 0.75 - radius,
+                        top: height / 2 - radius,
+                        fill: "white",
+                        radius: radius,
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR
+                    });
+                    //objects.push(circle);
+                    break;
+
                 default:
                     throw "Unknown templateId";
             }

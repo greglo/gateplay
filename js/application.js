@@ -32,9 +32,12 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
 
         this._canvasController = new CircuitController(this);
 
-        this.addComponent(1, 1, 7, 2, 1, "and");
-        this.addComponent(15, 20, 7, 2, 1, "and");
-        this._canvasModel.addWire(0, 0, 1, 0, [{x: 15, y: 3}]);
+        this.addComponent(5, 5, 5, 1, 1, "not");
+        this.addComponent(20, 5, 5, 1, 1, "not");
+        this.addComponent(13, 15, 5, 1, 1, "not");
+        this._canvasModel.addWire(0, 0, 1, 0, []);
+        this._canvasModel.addWire(1, 0, 2, 0, [{x: 30, y: 6}, {x: 30, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
+        this._canvasModel.addWire(2, 0, 0, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
     }
 
     ApplicationState.prototype.getCanvas = function() {

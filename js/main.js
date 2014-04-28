@@ -114,11 +114,11 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
                     Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
                     Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
                     7,
-                    $(ui.helper).data("inputCount"),
-                    $(ui.helper).data("outputCount"),
+                    $(ui.helper).data("inputcount"),
+                    $(ui.helper).data("outputcount"),
                     $(ui.helper).data("templateid")
                 );
-            }, 
+            }
         });
       
         // Remove loading panel

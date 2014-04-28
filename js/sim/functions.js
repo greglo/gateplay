@@ -42,7 +42,7 @@ define([
         return 5;
     }
     EvaluationFunction.prototype.getMaxUncertaintyDuration = function() {
-        return 3;
+        return 1;
     }
 
     function On() {

@@ -14,7 +14,13 @@ define([
         this._events = new PriorityQueue({comparator: function(e1, e2) {
             return e1.eventTime - e2.eventTime;
         }});
+
+        this._wireEventListeners = [];
     }
+
+    Circuit.prototype.addWireEventListener = function(f) {
+        this._wireEventListeners.push(f);
+    };
 
     Circuit.prototype.containsComponent = function(id) {
         return id in this._components;
@@ -123,8 +129,7 @@ define([
            
             // If the event is not superceded by a previous event 
             if (e.truthValue === TruthValue.UNKNOWN || e.eventTime >= eventWire.unstableUntil) {
-                eventWire.truthValue = e.truthValue;
-                this._wireValueChanged(eventWire.id, e.truthValue);
+                this._changeWireValue(eventWire, e.truthValue);
                 
                 var c = this.getComponent(eventWire.destId);
                 var outputs = c.evaluateOneInputChanged(eventWire.destPort, eventWire.truthValue);
@@ -158,8 +163,12 @@ define([
     };
 
 
-    Circuit.prototype._wireValueChanged = function(id, truthValue) {
-        console.log(id + " -> " + truthValue);
+    Circuit.prototype._changeWireValue = function(wire, truthValue) {
+        wire.truthValue = truthValue;
+        console.log(wire.id + " -> " + truthValue);
+        _.each(this._wireEventListeners, function(f) {
+            f(wire.id, truthValue);
+        })
     };
 
     return Circuit;

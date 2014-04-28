@@ -76,6 +76,7 @@ define([
             } else if (truthValue === TruthValue.UNKNOWN) {
                 this.polyLine.setStroke("Gray");
             }
+            this.options.canvas.renderAll();
         }
     });
 });

@@ -94,24 +94,31 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
 
     ApplicationState.prototype._nowRunning = function() {
         var simulation = new SimCircuit();
+        this.simulation = simulation;
 
         // Add components
-        var components = this._canvasModel.get("components").models;
-        _.each(components, function(c) {
+        var components = this._canvasModel.get("components");
+        _.each(components.models, function(c) {
             simulation.addComponent(c.get("id"), c.get("templateId"), c.get("inputCount"), c.get("outputCount"));
         })
 
         // Add wires
-        var wires = this._canvasModel.get("wires").models;
-        _.each(wires, function(wire) {
+        var wires = this._canvasModel.get("wires");
+        _.each(wires.models, function(wire) {
             simulation.addWire(wire.get("id"), wire.get("sourceId"), wire.get("sourcePort"), wire.get("targetId"), wire.get("targetPort"));
         })
 
         simulation.initialize();
-        for (var i = 0; i < 100; i++) {
-            simulation.tick();
-        }
+        simulation.addWireEventListener(function(id, truthValue) {
+            var wire = wires.get(id);
+            wire.set("truthValue", truthValue);
+        })
+        setInterval(this._tick.bind(this), 150);
     };
+
+    ApplicationState.prototype._tick = function() {
+        this.simulation.tick();
+    }
 
     return ApplicationState;
 });

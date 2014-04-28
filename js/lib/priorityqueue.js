@@ -2,7 +2,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(['lib/PriorityQueue/AbstractPriorityQueue', 'lib/PriorityQueue/ArrayStrategy', 'lib/PriorityQueue/BinaryHeapStrategy', 'lib/PriorityQueue/BHeapStrategy'], function(AbstractPriorityQueue, ArrayStrategy, BinaryHeapStrategy, BHeapStrategy) {
+  define(['lib/priorityqueue/AbstractPriorityQueue', 'lib/priorityqueue/ArrayStrategy', 'lib/priorityqueue/BinaryHeapStrategy', 'lib/priorityqueue/BHeapStrategy'], function(AbstractPriorityQueue, ArrayStrategy, BinaryHeapStrategy, BHeapStrategy) {
     var PriorityQueue;
     PriorityQueue = (function(_super) {
       __extends(PriorityQueue, _super);

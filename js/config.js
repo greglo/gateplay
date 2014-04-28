@@ -10,7 +10,7 @@ require.config({
         modernizr: "lib/custom.modernizr",
         backbone: 'lib/backbone-min',
         fabric: "lib/fabric.scope",
-        priorityqueue: "lib/PriorityQueue",
+        priorityqueue: "lib/priorityqueue",
     },
 
     shim: {

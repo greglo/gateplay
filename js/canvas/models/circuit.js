@@ -52,6 +52,8 @@ define([
 
             this._setPoints(points, c.id);
             this.get("components").add(c);
+
+            return c.get("id");
         },
 
         removeComponent: function(c) {

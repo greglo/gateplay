@@ -24,7 +24,7 @@ define([
                 }
             });
 
-            var sourceComponent = components.models[(model.get("sourceId"))];
+            var sourceComponent = components.get(model.get("sourceId"));
             var firstX = sourceComponent.get("x") + sourceComponent.get("width");
             var firstY = sourceComponent.getOutputCoordinate(model.get("sourcePort"));
             canvasFixedPoints.unshift({
@@ -33,7 +33,7 @@ define([
             });
             
 
-            var targetComponent = components.models[(model.get("targetId"))];
+            var targetComponent = components.get(model.get("targetId"));
             var lastX = targetComponent.get("x");
             var lastY = targetComponent.getInputCoordinate(model.get("targetPort"));
             canvasFixedPoints.push({
@@ -69,7 +69,6 @@ define([
 
         _setWireColor: function() {
             var truthValue = this.model.get("truthValue");
-            console.log(truthValue);
             if (truthValue === TruthValue.TRUE) {
                 this.polyLine.setStroke("Green");;
             } else if (truthValue === TruthValue.FALSE) {

@@ -4,8 +4,9 @@ define([
     "canvas/models/circuit",
     "canvas/views/circuitview",
     "canvas/controllers/circuitcontroller",
+    "sim/circuit",
 ],
-function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
+function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
     function ApplicationState(gridWidth, gridHeight, gridSize) {
         this.MODE_EDIT = "Editing";
         this.MODE_RUN = "Running";
@@ -32,12 +33,12 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
 
         this._canvasController = new CircuitController(this);
 
-        this.addComponent(5, 5, 5, 1, 1, "not");
-        this.addComponent(20, 5, 5, 1, 1, "not");
-        this.addComponent(13, 15, 5, 1, 1, "not");
-        this._canvasModel.addWire(0, 0, 1, 0, []);
-        this._canvasModel.addWire(1, 0, 2, 0, [{x: 30, y: 6}, {x: 30, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
-        this._canvasModel.addWire(2, 0, 0, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
+        var id1 = this.addComponent(5, 5, 5, 1, 1, "not");
+        var id2 = this.addComponent(20, 5, 5, 1, 1, "not");
+        var id3 = this.addComponent(13, 15, 5, 1, 1, "not");
+        this._canvasModel.addWire(id1, 0, id2, 0, []);
+        this._canvasModel.addWire(id2, 0, id3, 0, [{x: 30, y: 6}, {x: 30, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
+        this._canvasModel.addWire(id3, 0, id1, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
     }
 
     ApplicationState.prototype.getCanvas = function() {
@@ -62,6 +63,12 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
             _.each(this._modeListeners, function(f) {
                 f(mode);
             });
+
+            if (mode === this.MODE_EDIT) {
+                this._nowEditing();
+            } else if (mode === this.MODE_RUN) {
+                this._nowRunning();
+            }
         }
     };
 
@@ -71,7 +78,7 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
 
     ApplicationState.prototype.addComponent = function(x, y, width, inputCount, outputCount, templateId) {
         if (this._mode === this.MODE_EDIT) {
-            this._canvasModel.addComponent(x, y, width, inputCount, outputCount, templateId);
+            return this._canvasModel.addComponent(x, y, width, inputCount, outputCount, templateId);
         }
     };
 
@@ -81,6 +88,24 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController) {
         } else if (this._mode === this.MODE_RUN) {
             this.setMode(this.MODE_EDIT);
         }
+    };
+
+    ApplicationState.prototype._nowRunning = function() {
+        var simulation = new SimCircuit();
+
+        // Add components
+        var components = this._canvasModel.get("components").models;
+        _.each(components, function(c) {
+            simulation.addComponent(c.get("id"), c.get("templateId"), c.get("inputCount"), c.get("outputCount"));
+        })
+
+        // Add wires
+        var wires = this._canvasModel.get("wires").models;
+        _.each(wires, function(wire) {
+            simulation.addWire(wire.get("sourceId"), wire.get("sourcePort"), wire.get("targetId"), wire.get("targetPort"));
+        })
+
+        console.log(simulation);
     };
 
     return ApplicationState;

@@ -2,7 +2,8 @@ var nextId = 0;
 define([
     "sim/truthvalue"
 ], function(TruthValue) {
-    function Wire(sourceId, sourcePort, destId, destPort) {
+    function Wire(id, sourceId, sourcePort, destId, destPort) {
+        this.id = id;
         this.sourceId = sourceId;
         this.sourcePort = sourcePort;
         this.destId = destId;

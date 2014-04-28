@@ -35,10 +35,12 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
 
         var id1 = this.addComponent(5, 5, 5, 1, 1, "not");
         var id2 = this.addComponent(20, 5, 5, 1, 1, "not");
-        var id3 = this.addComponent(13, 15, 5, 1, 1, "not");
+        var id3 = this.addComponent(35, 5, 5, 1, 1, "not");
+        var id4 = this.addComponent(13, 15, 5, 1, 1, "not");
         this._canvasModel.addWire(id1, 0, id2, 0, []);
-        this._canvasModel.addWire(id2, 0, id3, 0, [{x: 30, y: 6}, {x: 30, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
-        this._canvasModel.addWire(id3, 0, id1, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
+        this._canvasModel.addWire(id2, 0, id3, 0, []);
+        this._canvasModel.addWire(id3, 0, id4, 0, [{x: 43, y: 6}, {x: 43, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
+        this._canvasModel.addWire(id4, 0, id1, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
     }
 
     ApplicationState.prototype.getCanvas = function() {
@@ -102,10 +104,13 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         // Add wires
         var wires = this._canvasModel.get("wires").models;
         _.each(wires, function(wire) {
-            simulation.addWire(wire.get("sourceId"), wire.get("sourcePort"), wire.get("targetId"), wire.get("targetPort"));
+            simulation.addWire(wire.get("id"), wire.get("sourceId"), wire.get("sourcePort"), wire.get("targetId"), wire.get("targetPort"));
         })
 
-        console.log(simulation);
+        simulation.initialize();
+        for (var i = 0; i < 100; i++) {
+            simulation.tick();
+        }
     };
 
     return ApplicationState;

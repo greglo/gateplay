@@ -45,31 +45,34 @@ define([
         }
     };
 
-    Circuit.prototype.addWire = function(sourceId, sourcePort, destId, destPort) {
+    Circuit.prototype.addWire = function(id, sourceId, sourcePort, destId, destPort) {
         var sourceComponent = this.getComponent(sourceId);
         var destComponent = this.getComponent(destId);
         if (sourceComponent.isValidOutputPort(sourcePort)) {
             if (destComponent.isValidInputPort(destPort)) {
-                var wire = new Wire(sourceId, sourcePort, destId, destPort);
+                var wire = new Wire(id, sourceId, sourcePort, destId, destPort);
                 if (!(sourceId in this._wires)) {
                     this._wires[sourceId] = {};
                 }
-                this._wires[sourceId][sourcePort] = wire;
+                if (!(sourcePort in this._wires[sourceId])) {
+                    this._wires[sourceId][sourcePort] = [];
+                }
+                this._wires[sourceId][sourcePort].push(wire);
             }
         }
     };
 
-    Circuit.prototype.getWire = function(componentId, port) {
+    Circuit.prototype.getWiresFromPort = function(componentId, port) {
         if (this.containsComponent(componentId) && this.getComponent(componentId).isValidOutputPort(port)) {
             var componentWires = this._wires[componentId];
             if (typeof componentWires != "undefined" && typeof componentWires[port] != "undefined") {
                 return componentWires[port];
             } else {
-                return null;
+                return [];
             }
         }
         else
-            return null;
+            return [];
     };
 
     Circuit.prototype.setWireValue = function(componentId, port, truthValue) {
@@ -93,7 +96,7 @@ define([
         }, this);
 
         // REMOVE THIS
-        this._addEvent(new CircuitEvent(0, 0, 0, TruthValue.TRUE));
+        this._addEvent(new CircuitEvent(0, 6, 0, TruthValue.TRUE));
 
         if (initialCount === 0) {
             console.warn("No initial components in the circuit");
@@ -104,45 +107,59 @@ define([
         // Pop all events which need to be processed
         while (this._events.length > 0 && this._events.peek().eventTime <= this._clock) {
             var e = this._events.dequeue();
-            var eventWire = this.getWire(e.sourceId, e.sourcePort);
 
-            // TODO: factor out into a method
+            var eventWires = this.getWiresFromPort(e.sourceId, e.sourcePort);
 
-            // If the event is changing something in the circuit
-            if (eventWire && e.truthValue !== eventWire.truthValue) {
-                eventWire.truthValue = e.truthValue;
-                var c = this.getComponent(eventWire.destId);
-                var outputs = c.evaluateOneInputChanged(eventWire.destPort, eventWire.truthValue);
-                
-                // Generate new events for each output which changed
-                for (var i = 0; i < outputs.length; i++) {
-
-                    var outputWire = this.getWire(eventWire.destId, i);
-
-                    if (this._clock >= outputWire.unstableUntil) {
-
-                        if (outputWire && outputWire.truthValue !== outputs[i]) {
-                            var unknownEvent = new CircuitEvent(e.eventTime + c.getDelay(), c._id, i, TruthValue.UNKNOWN);
-                            this._addEvent(unknownEvent);
-
-                            outputWire.unstableUntil = (e.eventTime + c.getDelay() + c.getDelayUncertainty());
-
-                            // Only add the second event if it is not a duplicate of the first
-                            if (outputs[i] !== TruthValue.UNKNOWN) {
-                                var knownEvent = new CircuitEvent(e.eventTime + c.getDelay() + c.getDelayUncertainty(), c._id, i, outputs[i]);
-                                this._addEvent(knownEvent);
-                            }
-                        }
-                    }
-                }
-            }
+            _.each(eventWires, function(eventWire) {
+                this._handleWireEvent(e, eventWire);
+            }.bind(this));
         }
         this._clock++;
     };
 
+    Circuit.prototype._handleWireEvent = function(e, eventWire) {
+        // If the event is changing something in the circuit
+        if (eventWire && eventWire.truthValue !== e.truthValue) {
+           
+            // If the event is not superceded by a previous event 
+            if (e.truthValue === TruthValue.UNKNOWN || e.eventTime >= eventWire.unstableUntil) {
+                eventWire.truthValue = e.truthValue;
+                this._wireValueChanged(eventWire.id, e.truthValue);
+                
+                var c = this.getComponent(eventWire.destId);
+                var outputs = c.evaluateOneInputChanged(eventWire.destPort, eventWire.truthValue);
+                
+                // Generate new events for each output
+                for (var i = 0; i < outputs.length; i++) {
+                    var unknownEvent = new CircuitEvent(e.eventTime + c.getDelay(), c._id, i, TruthValue.UNKNOWN);
+                    this._addEvent(unknownEvent);
+                    
+                    // Only add the second event if it is not a duplicate of the first
+                    if (outputs[i] !== TruthValue.UNKNOWN) {
+                        var knownEvent = new CircuitEvent(e.eventTime + c.getDelay() + c.getDelayUncertainty(), c._id, i, outputs[i]);
+                        this._addEvent(knownEvent);
+                    }
+                    
+                    var outputWires = this.getWiresFromPort(eventWire.destId, i);
+                    _.each(outputWires, function(outputWire) {
+                        if (outputWire) {
+                            outputWire.unstableUntil = (e.eventTime + c.getDelay() + c.getDelayUncertainty());
+                        }
+                    }.bind(this))
+                }
+
+            }
+
+        }
+    };
+
     Circuit.prototype._addEvent = function(circuitEvent) {
         this._events.queue(circuitEvent)
-        console.log(circuitEvent);
+    };
+
+
+    Circuit.prototype._wireValueChanged = function(id, truthValue) {
+        console.log(id + " -> " + truthValue);
     };
 
     return Circuit;

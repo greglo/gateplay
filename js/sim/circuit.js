@@ -165,7 +165,6 @@ define([
 
     Circuit.prototype._changeWireValue = function(wire, truthValue) {
         wire.truthValue = truthValue;
-        console.log(wire.id + " -> " + truthValue);
         _.each(this._wireEventListeners, function(f) {
             f(wire.id, truthValue);
         })

@@ -15,6 +15,7 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
         // Zurb Foundation
         $(document).foundation();
 
+
         // Calculate full width and height canvas size
         var gridWidth = $("#workbench").parent().innerWidth();
         var gridHeight = $(window).height() - $(".top-bar").height();
@@ -49,12 +50,24 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
         
         // Download button handler
         $("#download-image").click(function() {
-            var image = application.getCanvasView().canvas.toDataURL();
+            var image = application.getCanvas().toDataURL();
             var a = document.getElementById('download-image');
             a.href=image;
             a.download = "circuit.png";
         });
 
+        // Simulation speed slider
+        $("#slider").slider({
+            min: -4,
+            max: 4,
+            step: 1,
+            value: 0
+        });
+        $("#slider").on("slidechange", function(e, ui) {
+            application.changeSimulationSpeed(Math.pow(1.5, ui.value) * 200);
+        });
+        application.changeSimulationSpeed(200);
+        
         // Accordion
         var lastMoved;
         $(".slider").click(function() {

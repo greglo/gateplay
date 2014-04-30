@@ -8,7 +8,8 @@
     <title>GatePlay</title>
 
     <link rel="stylesheet" href="css/foundation.css">
-    <link rel="stylesheet" href="css/foundation-changes.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/gateplay.css">
     <link rel="stylesheet" href="css/font-awesome-4.0.3/css/font-awesome.min.css">
 
     <script type="text/javascript" data-main="main" src="js/require.js"></script>
@@ -31,9 +32,10 @@
 
         <section class="top-bar-section">
             <ul class="large-3 columns">
-                <li class=""><a id="run" data-tooltip title="Run Simulation" href="#"><i class="fa fa-play"></i></a></li>
-                <li class=""><a id="save" data-tooltip title="Save Progress" href="#"><i class="fa fa-save"></i></a></li>
-                <li class=""><a id="download-image" data-tooltip title="Download as .png" href="#"><i class="fa fa-download"></i></a></li>
+                <li><a id="run" data-tooltip title="Run Simulation" href="#"><i class="fa fa-play"></i></a></li>
+                <li><a id="save" data-tooltip title="Save Progress" href="#"><i class="fa fa-save"></i></a></li>
+                <li><a id="download-image" data-tooltip title="Download as .png" href="#"><i class="fa fa-download"></i></a></li>
+                <li><div id="slider-container" data-tooltip title="Simulation Speed"><div id="slider"></div></div></li>
             </ul>
         </section>
     </nav>

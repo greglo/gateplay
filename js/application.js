@@ -18,6 +18,8 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         this._mode = this.MODE_EDIT;
         this._modeListeners = [];
 
+        this._tickMillis = 200;
+
         this._canvasModel = new CanvasCircuit({
             width: gridWidth,
             height: gridHeight
@@ -84,6 +86,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         }
     };
 
+    ApplicationState.prototype.changeSimulationSpeed = function(tickMillis) {
+        this._tickMillis = tickMillis;
+    };
+
     ApplicationState.prototype.runButtonPressed = function() {
         if (this._mode === this.MODE_EDIT) {
             this.setMode(this.MODE_RUN);
@@ -93,6 +99,7 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
     };
 
     ApplicationState.prototype._nowRunning = function() {
+        // Create new simulator
         var simulation = new SimCircuit();
         this.simulation = simulation;
 
@@ -113,12 +120,20 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
             var wire = wires.get(id);
             wire.set("truthValue", truthValue);
         })
-        setInterval(this._tick.bind(this), 150);
+
+        this._tick();
     };
 
     ApplicationState.prototype._tick = function() {
         this.simulation.tick();
+
+        if (this._mode === this.MODE_RUN) {
+            setTimeout(this._tick.bind(this), this._tickMillis);
+        }
     }
+
+    ApplicationState.prototype._nowEditing = function() {
+    };
 
     return ApplicationState;
 });

@@ -82,7 +82,27 @@ define([
                     break;
 
                 default:
-                    throw "Unknown templateId";
+                    var rect = new fabric.Rect({
+                        left: 0,
+                        top: 0,
+                        width: width,
+                        height: height,
+                        fill: "gray",
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR,
+                    });
+                    objects.push(rect);
+
+                    var text = new fabric.Text(templateId, {
+                        stroke: "black",
+                        strokeWidth: 8,
+                        originX: "center",
+                        originY: "center",
+                        left: (width + this.STROKE_WIDTH) / 2,
+                        top: (height - 50) / 2,
+                        fontSize: 200,
+                    })
+                    objects.push(text);
             }
 
             return new fabric.Group(objects);

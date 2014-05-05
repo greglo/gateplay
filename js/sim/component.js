@@ -10,9 +10,6 @@ define([
         this._outputCount = outputCount;
 
         this._evalFunc = Functions.get(funcId);
-        this._cachedInputs = [];
-        for (var i = 0; i < this._inputCount; i++)
-            this._cachedInputs.push("Unknown");
     }
 
     Component.prototype.getInputCount = function() {
@@ -46,21 +43,12 @@ define([
         if (truthValues.length != this._inputCount)
             throw "truthValues must be of the same size as _inputCount";
 
-        this._cachedInputs = truthValues;
-
         var outputs = this._evalFunc.evaluate(truthValues);
         if (outputs.length != this._outputCount) {
             throw "evalFunc returned an unexpected number of outputs";
         }
 
         return outputs;
-    };
-
-    Component.prototype.evaluateOneInputChanged = function(portId, truthValue) {
-        if (this.isValidInputPort(portId)) {
-            this._cachedInputs[portId] = truthValue;
-            return this.evaluate(this._cachedInputs);
-        }
     };
 
     return Component;

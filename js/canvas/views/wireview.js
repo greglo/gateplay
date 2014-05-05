@@ -61,7 +61,7 @@ define([
             });
 
             this.polyLine = new fabric.Polyline(canvasFixedPoints, {
-              strokeWidth: GRID_SIZE,
+              strokeWidth: GRID_SIZE + 1,
               fill: false,
               left: smallestX,
               top: smallestY,

@@ -70,6 +70,12 @@ define([
                 fixedPoints: fixedPoints
             });
             this.get("wires").add(wire);
+
+            return wire.get("id");
+        },
+
+        removeWire: function(id) {
+            this.get("wires").remove(id);
         },
 
         moveComponentById: function(id, newX, newY) {

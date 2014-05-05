@@ -7,11 +7,17 @@ define([
     return Backbone.View.extend({
         initialize: function(options) {
             this.options = options.options;
+            this.polyLine = null;
 
+            this.model.on("change:fixedPoints", this.render, this);
             this.model.on("change:truthValue", this._setWireColor, this);
         },
 
         render : function() {
+            if (this.polyLine != null) {
+                this.options.canvas.remove(this.polyLine);
+            }
+
             var GRID_SIZE = this.options.GRID_SIZE;
             var model = this.model;
             var components = this.options.components;
@@ -34,12 +40,14 @@ define([
             
 
             var targetComponent = components.get(model.get("targetId"));
-            var lastX = targetComponent.get("x");
-            var lastY = targetComponent.getInputCoordinate(model.get("targetPort"));
-            canvasFixedPoints.push({
-                x: (lastX - 0.5) * GRID_SIZE,
-                y: lastY * GRID_SIZE 
-            });
+            if (targetComponent) {
+                var lastX = targetComponent.get("x");
+                var lastY = targetComponent.getInputCoordinate(model.get("targetPort"));
+                canvasFixedPoints.push({
+                    x: (lastX - 0.5) * GRID_SIZE,
+                    y: lastY * GRID_SIZE 
+                });
+            }
 
 
             var xs = _.pluck(canvasFixedPoints, "x");
@@ -60,7 +68,8 @@ define([
               selectable: false,
               rx: GRID_SIZE,
               ry: GRID_SIZE,
-              evented: false
+              evented: false,
+              opacity: 0.8
             });
             this._setWireColor();
 

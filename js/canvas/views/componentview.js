@@ -18,51 +18,55 @@ define([
         },
 
         render : function() {
+            var GRID_SIZE = this.options.GRID_SIZE;
+            var model = this.model;
+
             var objects = [];
-            var gate = TemplateFactory.getTemplate(this.model.get("templateId"), this.model.get("width") - 2, this.model.getHeight());
-            gate.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
+            var gate = TemplateFactory.getTemplate(model.get("templateId"), model.get("width") - 2, model.getHeight());
+            gate.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
             gate.set({
-                left:this.options.GRID_SIZE,
+                left:GRID_SIZE,
                 top: 0,
-                width: (this.model.get("width") - 2) * TemplateFactory.BOX_SIZE,
-                height: (this.model.getHeight() + 0) * TemplateFactory.BOX_SIZE,
+                width: (model.get("width") - 2) * TemplateFactory.BOX_SIZE,
+                height: (model.getHeight() + 0) * TemplateFactory.BOX_SIZE,
             });
             objects.push(gate);
 
-            var topInput = this.options.GRID_SIZE;
-            for (var i = 0; i < this.model.get("inputCount"); i++) {
+            var nextInputY = (model.getInputCoordinate(0) - model.get("y")) * GRID_SIZE;
+            for (var i = 0; i < model.get("inputCount"); i++) {
                 var input = TemplateFactory.getWire();
                 input.set({
                     left: 0,
-                    top: topInput,
+                    top: nextInputY,
                 })
-                input.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
+                input.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
                 this._inputs.push(input);
-                topInput += this.options.GRID_SIZE * 2;
+                nextInputY += GRID_SIZE * 2;
             }
             objects = objects.concat(this._inputs);
 
-            // TODO: assume only 1 output
-            for (var i = 0; i < this.model.get("outputCount"); i++) {
+            var nextOutputY = (model.getOutputCoordinate(0) - model.get("y")) * GRID_SIZE;
+            for (var i = 0; i < model.get("outputCount"); i++) {
                 var output = TemplateFactory.getWire();
                 output.set({
-                    left: (this.model.get("width") - 1) * this.options.GRID_SIZE,
-                    top: (this.model.get("inputCount")) * this.options.GRID_SIZE,
+                    left: (model.get("width") - 1) * GRID_SIZE,
+                    top: nextOutputY,
                 })
-                output.scale(this.options.GRID_SIZE / TemplateFactory.BOX_SIZE);
+                output.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
                 this._outputs.push(output);
+                nextOutputY += GRID_SIZE * 2;
             }
             objects = objects.concat(this._outputs);
 
             this._template = new fabric.Group(objects);
 
             // We associate the canvas element with its backbone model
-            this._template.id = this.model.get("id");
+            this._template.id = model.get("id");
             this._template.class = "gate";
 
             this._template.set({
-                left: this.model.get("x") * this.options.GRID_SIZE,
-                top: this.model.get("y") * this.options.GRID_SIZE,
+                left: model.get("x") * GRID_SIZE,
+                top: model.get("y") * GRID_SIZE,
                 lockMovementX: true,
                 lockMovementY   : true,
             });

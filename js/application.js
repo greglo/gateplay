@@ -25,7 +25,9 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
             height: gridHeight
         });
 
-        this._canvas = new fabric.Canvas('workbench');
+        this._canvas = new fabric.Canvas('workbench', {
+            CURSOR: "pointer"
+        });
 
         this._canvasView = new CircuitView({
             canvas: this._canvas,

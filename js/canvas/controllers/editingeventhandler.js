@@ -1,7 +1,8 @@
 define([
-    "underscore"
+    "underscore",
+    "canvas/models/wire"
 ],
-function(_) {
+function(_, Wire) {
     function EditingEventHandler(applicationState, controller) {
         this._applicationState = applicationState;
         this._controller = controller;
@@ -15,8 +16,18 @@ function(_) {
             startY: null,
             isDown: false,
             isValidMove: false,
-            existingSelection: null
-        }
+            existingSelection: null,
+            lastClickPoint: null
+        };
+
+        this._drawData = {
+            dummyWire: null,
+            startPort: null,
+            endObject: null,
+            endPort: null,
+            fixedPoints: [],
+            isLastPointSet: true
+        };
 
         var canvas = applicationState.getCanvas();
         canvas.selection = true;
@@ -29,26 +40,32 @@ function(_) {
         // Look to see if we are hovering over a gate
         if (target.class === "gate") {
             var left = pointer.x - target.getLeft();
-            var top = pointer.y - target.getTop();
             var model = canvasModel.get("components").get(target.id);
 
-            if (left < GRID_SIZE && Math.floor(top / GRID_SIZE) % 2 == 1) {
-                var inputIndex = Math.floor(top / (2 * GRID_SIZE));
+            var y = Math.floor(pointer.y / GRID_SIZE);
+            var midY = model.get("y") + Math.floor(model.getHeight() / 2);
+            var inputIndex = (y - midY + model.get("inputCount") - 1) / 2;
+            var outputIndex = (y - midY + model.get("outputCount") - 1) / 2;
+
+            if (left >= target.getWidth() - GRID_SIZE && outputIndex % 1 == 0 && outputIndex < model.get("outputCount")) {
+                // We are hovering over an output wire
+                model.setActiveOutput(outputIndex);
+                this._drawData.startPort = outputIndex;
+            } else if (left <= GRID_SIZE && inputIndex % 1 == 0 && inputIndex <= model.get("inputCount")) {
                 model.setActiveInput(inputIndex);
-                this._mouse.eventType = "draw";
-            } else if (false) {
-                // output
-                this._mouse.eventType = "draw";
+                this._drawData.endObject = target;
+                this._drawData.endPort = inputIndex;
             } else {
                 model.clearActivePort();
-                this._mouse.eventType = "move";
+                this._drawData.endObject = null;
+                this._drawData.startPort = null;
             }
         } else {
             // If we are not hovering over a gate, we cannot be drawing wires
-            this._mouse.eventType = "move";
+            this._drawData.endObject = null;
+            this._drawData.startPort = null;
         }
 
-        // We only record the potential start to a draw if the mouse isn't already down
         if (!this._mouse.isDown) {
             this._mouse.startObject = target;
         }
@@ -56,9 +73,10 @@ function(_) {
 
     EditingEventHandler.prototype.objectOut = function(target) {
         // If we just left a gate, clear its active port                
-        if (target.class === "gate") {
+        if (target.class === "gate" && this._mouse.eventType !== "draw") {
             var canvasModel = this._applicationState.getCanvasModel();
             var model = canvasModel.get("components").get(target.id);
+            this._drawData.startPort = null;
             model.clearActivePort();
         }
 
@@ -88,22 +106,39 @@ function(_) {
         this._mouse.isDown = true;
         this._mouse.startX = pointer.x;
         this._mouse.startY = pointer.y;
+        var gridX = Math.min(pointer.x / this._applicationState.GRID_SIZE);
+        var gridY = Math.min(pointer.y / this._applicationState.GRID_SIZE);
 
-        if (this._mouse.startObject) {
+
+        if (this._mouse.eventType === "draw") {
+            var lcp = this._mouse.lastClickPoint;
+            if (this._drawData.endObject != null) {
+                this._drawingCreated();
+                this._mouse.eventType = "";
+            } else if (lcp != null && lcp.x === gridX && lcp.y === gridY) {
+                // Cancel drawing
+                this._drawingCancelled();
+                this._mouse.eventType = "";
+            } else {
+                this._drawingCheckpoint(gridX, gridY);
+            }
+        } else if (this._mouse.startObject) {
             this._mouse.innerOffsetX = pointer.x - this._mouse.startObject.getLeft();
             this._mouse.innerOffsetY = pointer.y - this._mouse.startObject.getTop();
             
-            switch (this._mouse.eventType) {
-                case "move":
-                    this._movingStarted();
-                    break;
-
-                case "draw":
-                    this._drawingStarted();
-                    break;
+            if (this._drawData.startPort != null) {
+                this._mouse.eventType = "draw";
+                this._drawingStarted(pointer);
+            } else {
+                this._mouse.eventType = "move";
+                this._movingStarted(pointer);
             }
         }
 
+        this._mouse.lastClickPoint = {
+            x: gridX,
+            y: gridY
+        };
     };
 
     EditingEventHandler.prototype.mouseUp = function(mouseEvent) {
@@ -119,32 +154,23 @@ function(_) {
         switch (this._mouse.eventType) {
             case "move":
                 this._movingStopped();
-                break;
-
-            case "draw":
-                this._drawingStopped(mouseEvent);
+                this._mouse.eventType = "";
                 break;
         }
     };
 
     EditingEventHandler.prototype.mouseMove = function(moveEvent) {
-        if (this._mouse.startObject && this._mouse.isDown) {
+        if (this._mouse.eventType === "move" && this._mouse.isDown && this._mouse.startObject) {
             // Do not fire events if we have selected other objects, but start dragging from this one
             if (this._mouse.existingSelection === null || this._mouse.existingSelection === this._mouse.startObject) {
-                switch (this._mouse.eventType) {
-                    case "move":
-                        this._moving(moveEvent);
-                        break;
-
-                    case "draw":
-                        this._drawing(moveEvent);
-                        break;
-                }
+                this._moving(moveEvent);
             }
+        } else if (this._mouse.eventType === "draw") {
+            this._drawing(moveEvent);
         }
     };
 
-    EditingEventHandler.prototype._movingStarted = function() {
+    EditingEventHandler.prototype._movingStarted = function(pointer) {
 
     }
 
@@ -173,38 +199,85 @@ function(_) {
         }
     };
 
-    EditingEventHandler.prototype._drawingStarted = function() {
+    EditingEventHandler.prototype._drawingStarted = function(pointer) {
+        console.log("Started");
+        var GRID_SIZE = this._applicationState.GRID_SIZE;
+        var x = Math.floor(pointer.x / GRID_SIZE);
+        var y = Math.floor(pointer.y / GRID_SIZE);
+        this._drawData.fixedPoints = [];
+
+        this._drawData.wireId = this._applicationState.getCanvasModel().addWire(
+            this._mouse.startObject.id,
+            this._drawData.startPort,
+            -1,
+            -1,
+            this._drawData.fixedPoints
+        );
+
     }
 
     EditingEventHandler.prototype._drawing = function(moveEvent) {
+        console.log("drawing");
         var pointer = this._applicationState.getCanvas().getPointer(moveEvent.e);
 
         var GRID_SIZE = this._applicationState.GRID_SIZE;
         var x = Math.floor(pointer.x / GRID_SIZE);
         var y = Math.floor(pointer.y / GRID_SIZE);
 
-        console.log(x);
-        console.log(y);
+        var newFixedPoints = this._drawData.fixedPoints.slice(0);
 
-        /*
-        view.options.canvas.remove(view.getTemporaryWire());
-        var x1 = view.getMouseData("startX");
-        var y1 = view.getMouseData("startY");
-        var pointer = view.options.canvas.getPointer(moveEvent.e);
-        var wire = new fabric.Line([x1, y1, pointer.x, pointer.y], {
-            strokeWidth: view.options.GRID_SIZE,
-            stroke: "black",
-            originX: "center",
-            originY: "center",
-            selectable: false
+        if (!this._drawData.isLastPointSet) {
+            newFixedPoints.pop();
+            newFixedPoints.pop();
+        }
+
+        var oldX;
+        var oldY;
+        if (newFixedPoints.length === 0) {
+            oldX = Math.floor(this._mouse.startX / this._applicationState.GRID_SIZE);
+            oldY = Math.floor(this._mouse.startY / this._applicationState.GRID_SIZE);
+        } else {
+            var lastPoint = newFixedPoints[newFixedPoints.length - 1];
+            oldX = lastPoint.x;
+            oldY = lastPoint.y;
+        }
+
+        newFixedPoints.push({
+            x: x, 
+            y: oldY
         });
-        view.setTemporaryWire(wire);
-        view.options.canvas.add(wire);
-        */
+        newFixedPoints.push({
+            x: x, 
+            y: y
+        });
+
+        this._drawData.isLastPointSet = false;
+
+        var canvasModel = this._applicationState.getCanvasModel();
+        canvasModel.get("wires").get(this._drawData.wireId).set("fixedPoints", newFixedPoints);
+
+        this._drawData.fixedPoints = newFixedPoints;
     };
 
-    EditingEventHandler.prototype._drawingStopped = function() {
+    EditingEventHandler.prototype._drawingCreated = function() {
+        console.log("Created");
+        var canvasModel = this._applicationState.getCanvasModel();
+        var wireModel = canvasModel.get("wires").get(this._drawData.wireId);
+        wireModel.set("targetId", this._drawData.endObject.id);
+        wireModel.set("targetPort", this._drawData.endPort);
+        this._drawData.wireId = null;
+    };
 
+    EditingEventHandler.prototype._drawingCancelled = function() {
+        console.log("Cancelled");
+        var canvasModel = this._applicationState.getCanvasModel();
+        canvasModel.removeWire(this._drawData.wireId);
+        this._drawData.wireId = null;
+    };
+
+    EditingEventHandler.prototype._drawingCheckpoint = function(gridX, gridY) {
+        console.log("Checkpoint");
+        this._drawData.isLastPointSet = true;
     };
 
     EditingEventHandler.prototype._updateLocation = function(target) {

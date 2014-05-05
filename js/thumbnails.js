@@ -5,16 +5,34 @@ define([
     "canvas/views/componentview",
 ],
 function($, fabric, Component, ComponentView) {
-    return function(templateId, gridSize, domElement) {
-        var rasterizer = new fabric.StaticCanvas("rasterizer");
-
+    return function(templateId, inputCount, outputCount, gridSize, domElement) {
+        // Create the models
         var validGate = new Component({
             templateId: templateId,
-            canvas: rasterizer,
             x: 0,
             y: 0,
+            inputCount: inputCount,
+            outputCount: outputCount,
             isValid: true
         });
+        var invalidGate = new Component({
+            templateId: templateId,
+            x: validGate.get("width"),
+            y: 0,
+            inputCount: inputCount,
+            outputCount: outputCount,
+            isValid: false
+        });
+
+        // Canvas to render on
+        var canvasWidth = validGate.get("width") * gridSize;
+        var canvasHeight = validGate.getHeight() * gridSize;
+        $("#rasterizer").attr("width", 2 * canvasWidth);
+        $("#rasterizer").attr("height", canvasHeight);
+
+        var rasterizer = new fabric.StaticCanvas("rasterizer");
+
+        // Component views
         var validView = new ComponentView({
             model: validGate,
             options: {
@@ -23,13 +41,6 @@ function($, fabric, Component, ComponentView) {
             }
         });
 
-        var invalidGate = new Component({
-            templateId: templateId,
-            canvas: rasterizer,
-            x: validGate.get("width"),
-            y: 0,
-            isValid: false
-        });
         var invalidView = new ComponentView({
             model: invalidGate,
             options: {
@@ -41,8 +52,8 @@ function($, fabric, Component, ComponentView) {
         validView.render();
         invalidView.render();
 
-        $(domElement).css("width", validGate.get("width") * gridSize);
-        $(domElement).css("height", validGate.getHeight() * gridSize);
+        $(domElement).css("width", canvasWidth);
+        $(domElement).css("height", canvasHeight);
         $(domElement).css("background-image", "url(" + rasterizer.toDataURL() + ")");
 
         rasterizer.dispose();

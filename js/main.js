@@ -29,11 +29,11 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
         $("#workbench").attr("height", pixelHeight);
 
         // Create image files for each gate in the sidebar
-        $("#rasterizer").attr("width", 2 * 7 * GRID_SIZE);
-        $("#rasterizer").attr("height", 5 * GRID_SIZE);
         $(".gate").each(function() {
             var templateId = $(this).data("templateid");
-            createThumbnail(templateId, GRID_SIZE, this);
+            var inputCount = $(this).data("inputcount");
+            var outputCount = $(this).data("outputcount");
+            createThumbnail(templateId, inputCount, outputCount, GRID_SIZE, this);
         });
 
         // Create the GatePlay web application object

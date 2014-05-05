@@ -102,11 +102,34 @@ define([
         }
     };
 
+    function Or() {
+        EvaluationFunction.apply(this, arguments);
+    }
+    Or.prototype = new EvaluationFunction();
+    Or.prototype._doEvaluate = function(argList) {
+        var anyUnknown = false;
+
+        for (var i = 0; i < argList.length; i++) {
+            var v = argList[i];
+            if (v === TruthValue.TRUE) {
+                return [TruthValue.TRUE];
+            }
+            anyUnknown = anyUnknown || v === TruthValue.UNKNOWN;
+        }
+
+        if (anyUnknown) {
+            return [TruthValue.UNKNOWN];
+        } else { 
+            return [TruthValue.FALSE];
+        }
+    };
+
     var fs = new FunctionStore();
     fs.put("on", new On());
     fs.put("off", new Off());
     fs.put("not", new Not());
     fs.put("and", new And());
+    fs.put("or", new Or());
 
     return fs;
 });

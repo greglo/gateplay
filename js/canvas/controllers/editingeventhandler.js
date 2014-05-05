@@ -57,13 +57,13 @@ function(_, Wire) {
                 this._drawData.endPort = inputIndex;
             } else {
                 model.clearActivePort();
-                this._drawData.endObject = null;
                 this._drawData.startPort = null;
+                this._drawData.endObject = null;
             }
         } else {
             // If we are not hovering over a gate, we cannot be drawing wires
-            this._drawData.endObject = null;
             this._drawData.startPort = null;
+            this._drawData.endObject = null;
         }
 
         if (!this._mouse.isDown) {
@@ -72,12 +72,16 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype.objectOut = function(target) {
-        // If we just left a gate, clear its active port                
-        if (target.class === "gate" && this._mouse.eventType !== "draw") {
+        // If we just left a gate, clear its active port        
+        if (target.class === "gate") {
             var canvasModel = this._applicationState.getCanvasModel();
             var model = canvasModel.get("components").get(target.id);
-            this._drawData.startPort = null;
+            this._drawData.endObject = null;
             model.clearActivePort();
+
+            if (this._mouse.eventType !== "draw") {
+                this._drawData.startPort = null;
+            }
         }
 
         // Clear hover object, if we haven't already changed it
@@ -200,7 +204,6 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype._drawingStarted = function(pointer) {
-        console.log("Started");
         var GRID_SIZE = this._applicationState.GRID_SIZE;
         var x = Math.floor(pointer.x / GRID_SIZE);
         var y = Math.floor(pointer.y / GRID_SIZE);
@@ -217,7 +220,6 @@ function(_, Wire) {
     }
 
     EditingEventHandler.prototype._drawing = function(moveEvent) {
-        console.log("drawing");
         var pointer = this._applicationState.getCanvas().getPointer(moveEvent.e);
 
         var GRID_SIZE = this._applicationState.GRID_SIZE;
@@ -260,7 +262,6 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype._drawingCreated = function() {
-        console.log("Created");
         var canvasModel = this._applicationState.getCanvasModel();
         var wireModel = canvasModel.get("wires").get(this._drawData.wireId);
         wireModel.set("targetId", this._drawData.endObject.id);
@@ -269,14 +270,12 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype._drawingCancelled = function() {
-        console.log("Cancelled");
         var canvasModel = this._applicationState.getCanvasModel();
         canvasModel.removeWire(this._drawData.wireId);
         this._drawData.wireId = null;
     };
 
     EditingEventHandler.prototype._drawingCheckpoint = function(gridX, gridY) {
-        console.log("Checkpoint");
         this._drawData.isLastPointSet = true;
     };
 

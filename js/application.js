@@ -17,7 +17,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
 
         this._mode = this.MODE_EDIT;
         this._modeListeners = [];
+        this._clockListeners = [];
 
+        this._clock = 0;
+        this._autoTick = false;
         this._tickMillis = 200;
 
         this._canvasModel = new CanvasCircuit({
@@ -70,16 +73,20 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
                 f(mode);
             });
 
-            if (mode === this.MODE_EDIT) {
-                this._nowEditing();
-            } else if (mode === this.MODE_RUN) {
+            if (mode === this.MODE_RUN) {
                 this._nowRunning();
+            } else if (mode === this.MODE_EDIT) {
+                this._nowEditing();
             }
         }
     };
 
     ApplicationState.prototype.addModeListener = function(f) {
         this._modeListeners.push(f);
+    };
+
+    ApplicationState.prototype.addClockListener = function(f) {
+        this._clockListeners.push(f);
     };
 
     ApplicationState.prototype.addComponent = function(x, y, width, inputCount, outputCount, templateId) {
@@ -92,15 +99,31 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         this._tickMillis = tickMillis;
     };
 
-    ApplicationState.prototype.runButtonPressed = function() {
-        if (this._mode === this.MODE_EDIT) {
-            this.setMode(this.MODE_RUN);
-        } else if (this._mode === this.MODE_RUN) {
-            this.setMode(this.MODE_EDIT);
+    ApplicationState.prototype.resetButtonPressed = function() {
+        if (this._mode === this.MODE_RUN) {
+            this._autoTick = false;
+            this._nowRunning();
         }
     };
 
+    ApplicationState.prototype.runButtonPressed = function() {
+        if (this._mode === this.MODE_RUN && this._autoTick === false) {
+            this._autoTick = true;
+            this._tick();
+        }
+    };
+
+    ApplicationState.prototype.pauseButtonPressed = function() {
+        this._autoTick = false;
+    };
+
+    ApplicationState.prototype.tickButtonPressed = function() {
+        this._tick();
+    };
+
     ApplicationState.prototype._nowRunning = function() {
+        this._setClock(0);
+
         // Create new simulator
         var simulation = new SimCircuit();
         this.simulation = simulation;
@@ -115,6 +138,8 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         var wires = this._canvasModel.get("wires");
         _.each(wires.models, function(wire) {
             simulation.addWire(wire.get("id"), wire.get("sourceId"), wire.get("sourcePort"), wire.get("targetId"), wire.get("targetPort"));
+
+            wire.set("truthValue", "Unknown");
         })
 
         simulation.initialize();
@@ -122,19 +147,29 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
             var wire = wires.get(id);
             wire.set("truthValue", truthValue);
         })
-
-        this._tick();
     };
 
     ApplicationState.prototype._tick = function() {
         this.simulation.tick();
+        this._setClock(this._clock + 1);
 
-        if (this._mode === this.MODE_RUN) {
+        if (this._mode === this.MODE_RUN && this._autoTick) {
             setTimeout(this._tick.bind(this), this._tickMillis);
         }
     }
 
+    ApplicationState.prototype._setClock = function(clock) {
+        this._clock = clock;
+        _.each(this._clockListeners, function(f) {
+            f(this._clock);
+        }.bind(this));
+    }
+
     ApplicationState.prototype._nowEditing = function() {
+        var wires = this._canvasModel.get("wires");
+        _.each(wires.models, function(wire) {
+            wire.set("truthValue", "Unknown");
+        })
     };
 
     return ApplicationState;

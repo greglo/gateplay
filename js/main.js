@@ -39,15 +39,54 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
         // Create the GatePlay web application object
         var application = new ApplicationState(gridWidth, gridHeight, GRID_SIZE);
 
-        // Run button handler
-        $("#run").click(function() {
+        application.addClockListener(function(clock) {
+            $("#clock").text(clock);
+        })
+
+        $("#edit").click(function() {
+            application.setMode(application.MODE_EDIT);
+            
+            $("#simulate").removeClass("disabled");
+
+            $("#edit").addClass("disabled");
+            $("#reset").addClass("disabled");
+            $("#play").addClass("disabled");
+            $("#pause").addClass("disabled");
+            $("#step").addClass("disabled");
+            $("#slider-container").addClass("disabled");
+            $("#clock").addClass("disabled");
+        });
+
+        $("#simulate").click(function() {
+            application.setMode(application.MODE_RUN);
+
+            $("#simulate").addClass("disabled");
+
+            $("#edit").removeClass("disabled");
+            $("#reset").removeClass("disabled");
+            $("#play").removeClass("disabled");
+            $("#pause").removeClass("disabled");
+            $("#step").removeClass("disabled");
+            $("#slider-container").removeClass("disabled");
+            $("#clock").removeClass("disabled");
+        });
+
+        $("#reset").click(function() {
+            application.resetButtonPressed();
+        });
+
+        $("#play").click(function() {
             application.runButtonPressed();
         });
 
-        // Save button handler
-        $("#save").click(function() {
+        $("#pause").click(function() {
+            application.pauseButtonPressed();
         });
-        
+
+        $("#step").click(function() {
+            application.tickButtonPressed();
+        });
+
         // Download button handler
         $("#download-image").click(function() {
             var image = application.getCanvas().toDataURL();

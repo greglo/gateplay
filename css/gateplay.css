@@ -67,6 +67,10 @@ body {
     cursor: pointer;
 }
 
+.disabled {
+    display: none !important;
+}
+
 .main-row {
     border-top: 1px solid #303030;
     padding-top:1px;

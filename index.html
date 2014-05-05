@@ -31,12 +31,20 @@
         </ul>
 
         <section class="top-bar-section">
-            <ul class="large-3 columns">
-                <li><a id="run" data-tooltip title="Run Simulation" href="#"><i class="fa fa-play"></i></a></li>
-                <li><a id="save" data-tooltip title="Save Progress" href="#"><i class="fa fa-save"></i></a></li>
+            <ul>
                 <li><a id="download-image" data-tooltip title="Download as .png" href="#"><i class="fa fa-download"></i></a></li>
-                <li><div id="slider-container" data-tooltip title="Simulation Speed"><div id="slider"></div></div></li>
+                <li><a id="simulate" href="#"><strong>Start Simulating</strong></a></li>
+                <li><a id="edit" class="disabled" href="#"><strong>Continue Editing</strong></a></li>
+                <li><a id="reset" class="disabled" data-tooltip title="Reset Simulation" href="#"><i class="fa fa-rotate-right"></i></a></li>
+                <li><a id="play" class="disabled" data-tooltip title="Run Simulation" href="#"><i class="fa fa-play"></i></a></li>
+                <li><a id="pause" class="disabled" data-tooltip title="Pause Simulation" href="#"><i class="fa fa-pause"></i></a></li>
+                <li><a id="step" class="disabled" data-tooltip title="Step Forward" href="#"><i class="fa fa-step-forward"></i></a></li>
+                <li><div id="slider-container" class="disabled" data-tooltip title="Simulation Speed"><div id="slider"></div></div></li>
             </ul>
+
+            <div id="clock" class="right">
+
+            </div>
         </section>
     </nav>
 

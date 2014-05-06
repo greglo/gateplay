@@ -36,14 +36,14 @@ define([
         return 0 <= portId && portId < this.getOutputCount();
     };
 
-    Component.prototype.evaluate = function(truthValues) {
+    Component.prototype.evaluate = function(truthValues, clock) {
         if (typeof truthValues == "undefined" || !truthValues instanceof Array)
             throw "truthValues must be of type Array";
 
         if (truthValues.length != this._inputCount)
             throw "truthValues must be of the same size as _inputCount";
 
-        var outputs = this._evalFunc.evaluate(truthValues);
+        var outputs = this._evalFunc.evaluate(truthValues, clock);
         if (outputs.length != this._outputCount) {
             throw "evalFunc returned an unexpected number of outputs";
         }

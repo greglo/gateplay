@@ -26,16 +26,16 @@ define([
         this._minInputCount = minInputCount;
         this._maxInputCount = maxInputCount;
     }
-    EvaluationFunction.prototype.evaluate = function(argList) {
+    EvaluationFunction.prototype.evaluate = function(argList, clock) {
         if (typeof argList == "undefined" || !argList instanceof Array)
             throw "argList must be a list";
 
         if (argList.length < this._minInputCount || argList.length > this._maxInputCount)
             throw "Invalid number of arguments passed to EvaluationFunction";
 
-        return this._doEvaluate(argList);
+        return this._doEvaluate(argList, clock);
     };
-    EvaluationFunction.prototype._doEvaluate = function(argList) {
+    EvaluationFunction.prototype._doEvaluate = function(argList, clock) {
         throw "_doEvaluate not implemented on EvaluationFunction, you must override it";
     }
     EvaluationFunction.prototype.getDelay = function() {
@@ -49,7 +49,7 @@ define([
         EvaluationFunction.apply(this, arguments);
     }
     On.prototype = new EvaluationFunction();
-    On.prototype._doEvaluate = function(argList) {
+    On.prototype._doEvaluate = function(argList, clock) {
         return [TruthValue.TRUE];
     };
 
@@ -57,7 +57,7 @@ define([
         EvaluationFunction.apply(this, arguments);
     }
     Off.prototype = new EvaluationFunction();
-    Off.prototype._doEvaluate = function(argList) {
+    Off.prototype._doEvaluate = function(argList, clock) {
         return [TruthValue.FALSE];
     };
 
@@ -65,7 +65,7 @@ define([
         EvaluationFunction.apply(this, arguments);
     }
     Not.prototype = new EvaluationFunction();
-    Not.prototype._doEvaluate = function(argList) {
+    Not.prototype._doEvaluate = function(argList, clock) {
         var outputs = [];
         for (var i = 0; i < argList.length; i++) {
             var v = argList[i];
@@ -84,7 +84,7 @@ define([
         EvaluationFunction.apply(this, arguments);
     }
     And.prototype = new EvaluationFunction();
-    And.prototype._doEvaluate = function(argList) {
+    And.prototype._doEvaluate = function(argList, clock) {
         var onlyTrue = true;
 
         for (var i = 0; i < argList.length; i++) {
@@ -106,7 +106,7 @@ define([
         EvaluationFunction.apply(this, arguments);
     }
     Or.prototype = new EvaluationFunction();
-    Or.prototype._doEvaluate = function(argList) {
+    Or.prototype._doEvaluate = function(argList, clock) {
         var anyUnknown = false;
 
         for (var i = 0; i < argList.length; i++) {
@@ -121,6 +121,31 @@ define([
             return [TruthValue.UNKNOWN];
         } else { 
             return [TruthValue.FALSE];
+        }
+    };
+
+
+    function Xor() {
+        EvaluationFunction.apply(this, arguments);
+    }
+    Xor.prototype = new EvaluationFunction();
+    Xor.prototype._doEvaluate = function(argList, clock) {
+        var anyUnknown = false;
+        var trueParity = 0;
+
+        for (var i = 0; i < argList.length; i++) {
+            var v = argList[i];
+            if (v === TruthValue.TRUE) {
+                trueParity = 1 - trueParity;
+            } else if (v === TruthValue.UNKNOWN) {
+                return [TruthValue.UNKNOWN];
+            }
+        }
+
+        if (trueParity === 0) { 
+            return [TruthValue.FALSE];
+        } else {
+            return [TruthValue.TRUE];
         }
     };
 

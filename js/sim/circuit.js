@@ -163,7 +163,7 @@ define([
     Circuit.prototype._componentInputsChanged = function(cid, e) {
         var c = this.getComponent(cid);
         var inputs = this._getComponentInputs(cid);
-        var outputs = c.evaluate(inputs);
+        var outputs = c.evaluate(inputs, this._clock);
         
         // Generate new events for each output
         for (var i = 0; i < outputs.length; i++) {

@@ -8,15 +8,15 @@ define([
     };
     FunctionStore.prototype.get = function(id) {
         if (id in this._store) {
-            return this._store[id];
+            return new this._store[id];
         } else {
             console.warn("A non-existant EvaluationFunction was requested");
             return null;
         }
     };
-    FunctionStore.prototype.put = function(id, evalFunc) {
+    FunctionStore.prototype.put = function(id, evalClass) {
         if (!(id in this._store)) {
-            this._store[id] = evalFunc;
+            this._store[id] = evalClass;
         } else {
             console.warn("An function was tried to be added with an existing key");
         }
@@ -149,12 +149,23 @@ define([
         }
     };
 
+    function Toggle() {
+        EvaluationFunction.apply(this, arguments);
+    }
+    Toggle.prototype = new EvaluationFunction();
+    Toggle.prototype._doEvaluate = function(argList, clock) {
+        return [TruthValue.TRUE];
+    };
+
     var fs = new FunctionStore();
-    fs.put("on", new On());
-    fs.put("off", new Off());
-    fs.put("not", new Not());
-    fs.put("and", new And());
-    fs.put("or", new Or());
+    fs.put("on", On);
+    fs.put("off", Off);
+    fs.put("not", Not);
+    fs.put("and", And);
+    fs.put("or", Or);
+    fs.put("xor", Xor);
+    fs.put("toggle", Toggle);
+
 
     return fs;
 });

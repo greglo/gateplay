@@ -57,7 +57,7 @@ define([
                     objects.push(poly);
                     break;
 
-                    case "not":
+                case "not":
                     var triangle = new fabric.Triangle({
                         left: 0,
                         top: 0,
@@ -79,6 +79,45 @@ define([
                         stroke: this.GATE_COLOR
                     });
                     //objects.push(circle);
+                    break;
+
+                case "on":
+                    var rect = new fabric.Rect({
+                        left: 0,
+                        top: 0,
+                        width: width,
+                        height: height,
+                        fill: "green",
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR,
+                    });
+                    objects.push(rect);
+                    break;
+
+                case "off":
+                    var rect = new fabric.Rect({
+                        left: 0,
+                        top: 0,
+                        width: width,
+                        height: height,
+                        fill: "red",
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR,
+                    });
+                    objects.push(rect);
+                    break;
+
+                case "toggle":
+                    var radius = height / 2;
+                    var circle = new fabric.Circle({
+                        left: 0,
+                        top: 0,
+                        fill: "green",
+                        radius: radius,
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR
+                    });
+                    objects.push(circle);
                     break;
 
                 default:

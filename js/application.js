@@ -53,6 +53,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         return this._canvasView;
     };
 
+    ApplicationState.prototype.getSimModel = function() {
+        return this._simulation;
+    };
+
     ApplicationState.prototype.getMode = function() {
         return this._mode;
     };
@@ -117,12 +121,16 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
 
         // Create new simulator
         var simulation = new SimCircuit();
-        this.simulation = simulation;
+        this._simulation = simulation;
 
         // Add components
         var components = this._canvasModel.get("components");
         _.each(components.models, function(c) {
             simulation.addComponent(c.get("id"), c.get("templateId"), c.get("inputCount"), c.get("outputCount"));
+
+            if (c.get("templateId") === "toggle") {
+                c.set("truthValue", "True");
+            }
         })
 
         // Add wires
@@ -141,7 +149,7 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
     };
 
     ApplicationState.prototype._tick = function() {
-        this.simulation.tick();
+        this._simulation.tick();
         this._setClock(this._clock + 1);
 
         if (this._mode === this.MODE_RUN && this._autoTick) {
@@ -160,7 +168,14 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         var wires = this._canvasModel.get("wires");
         _.each(wires.models, function(wire) {
             wire.set("truthValue", "Unknown");
-        })
+        });
+
+        var components = this._canvasModel.get("components");
+        _.each(components.models, function(c) {
+            if (c.get("templateId") === "toggle") {
+                c.set("truthValue", "True");
+            }
+        });
     };
 
     return ApplicationState;

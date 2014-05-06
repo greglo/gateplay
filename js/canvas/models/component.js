@@ -29,8 +29,11 @@ define([
                 } else {
                     width = 7;
                 }
-
                 this.set("width", width);
+
+                if (this.get("templateId") === "toggle") {
+                    this.set("truthValue", "True");
+                }
             }
         },
 

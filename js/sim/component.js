@@ -3,7 +3,7 @@ define([
     "underscore",
     "sim/functions"
 ], function(_, Functions) {
-    function Component(id, funcId, inputCount, outputCount) {
+    function Component(id, funcId, inputCount, outputCount, truthValue) {
         this._id = id;
         this._funcId = funcId;
         this._inputCount = inputCount;
@@ -18,6 +18,10 @@ define([
 
     Component.prototype.getOutputCount = function() {
         return this._outputCount;
+    };
+
+    Component.prototype.getFuncId = function() {
+        return this._funcId;
     };
 
     Component.prototype.getDelay = function() {

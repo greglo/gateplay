@@ -111,6 +111,16 @@ define([
         }
     };
 
+    Circuit.prototype.setToggleValue = function(componentId, truthValue) {
+        var component = this.getComponent(componentId);
+
+        if (component.getFuncId() === "toggle") {
+            this._addEvent(new CircuitEvent(this._clock, componentId, 0, truthValue))
+        } else {
+            throw "Component #" + componentId + " is not a toggle";
+        }
+    };
+
     Circuit.prototype.initialize = function() {
         this._clock = 0;
 

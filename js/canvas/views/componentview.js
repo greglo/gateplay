@@ -1,8 +1,9 @@
 define([
     "backbone",
     "fabric",
-    "canvas/views/templates/templatefactory"
-], function(Backbone, fabric, TemplateFactory) {
+    "canvas/views/templates/templatefactory",
+    "sim/truthvalue"
+], function(Backbone, fabric, TemplateFactory, TruthValue) {
     return Backbone.View.extend({
         initialize: function(options) {
             this.options = options.options;
@@ -12,9 +13,10 @@ define([
             this._outputs = [];
             this._activePort = null;
 
-            this.model.on("change:isValid", this._isValidChanged, this);
+            this.model.on("change:isValid", this._setFillColor, this);
             this.model.on("change:activeInputIndex", this._activeInputChanged, this);
             this.model.on("change:activeOutputIndex", this._activeOutputChanged, this);
+            this.model.on("change:truthValue", this._setFillColor, this);
         },
 
         render : function() {
@@ -88,14 +90,37 @@ define([
             this._template.hasControls = false;
             this.options.canvas.add(this._template);
             
-            this._isValidChanged();
+            this._setFillColor();
         },
 
-        _isValidChanged: function() {
-            if (this.model.get("isValid"))
-                this._template.setFill("white");
-            else
-                this._template.setFill("red");
+        _setFillColor: function() {
+            var validColor = "white";
+            var invalidColor = "red";
+
+            if (this.model.get("templateId") === "on") {
+                validColor = "green";
+                invalidColor = "darkgreen";
+            } else if (this.model.get("templateId") === "off") {
+                validColor = "red";
+                invalidColor = "red";
+            } else if (this.model.get("templateId") === "toggle") {
+                var truthValue = this.model.get("truthValue");
+                if (truthValue === TruthValue.TRUE) {
+                    validColor = "green";
+                    invalidColor = "darkgreen";
+                } else if (truthValue === TruthValue.FALSE) {
+                    validColor = "red";
+                    invalidColor = "red";
+                }
+            }
+
+
+            if (this.model.get("isValid")) {
+                this._template.setFill(validColor);
+            } else {
+                this._template.setFill(invalidColor);
+            }
+
             this.options.canvas.renderAll();
         },
 
@@ -120,6 +145,6 @@ define([
                 this._activePort = null;
             }
             this.options.canvas.renderAll();
-        }
+        },
     });
 });

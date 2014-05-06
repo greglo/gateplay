@@ -39,15 +39,6 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         });
 
         this._canvasController = new CircuitController(this);
-
-        var id1 = this.addComponent(5, 5, 5, 1, 1, "not");
-        var id2 = this.addComponent(20, 5, 5, 1, 1, "not");
-        var id3 = this.addComponent(35, 5, 5, 1, 1, "not");
-        var id4 = this.addComponent(13, 15, 5, 1, 1, "not");
-        this._canvasModel.addWire(id1, 0, id2, 0, []);
-        this._canvasModel.addWire(id2, 0, id3, 0, []);
-        this._canvasModel.addWire(id3, 0, id4, 0, [{x: 43, y: 6}, {x: 43, y: 10}, {x: 10, y: 10}, {x: 10, y: 16}]);
-        this._canvasModel.addWire(id4, 0, id1, 0, [{x: 20, y: 16}, {x: 20, y: 20}, {x: 2, y: 20}, {x: 2, y: 6}]);
     }
 
     ApplicationState.prototype.getCanvas = function() {
@@ -89,9 +80,9 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         this._clockListeners.push(f);
     };
 
-    ApplicationState.prototype.addComponent = function(x, y, width, inputCount, outputCount, templateId) {
+    ApplicationState.prototype.addComponent = function(x, y, inputCount, outputCount, templateId) {
         if (this._mode === this.MODE_EDIT) {
-            return this._canvasModel.addComponent(x, y, width, inputCount, outputCount, templateId);
+            return this._canvasModel.addComponent(x, y, inputCount, outputCount, templateId);
         }
     };
 

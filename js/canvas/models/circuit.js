@@ -34,11 +34,10 @@ define([
             return this._areValidPoints(points, []);
         },
 
-        addComponent: function(x, y, width, inputCount, outputCount, templateId) {
+        addComponent: function(x, y, inputCount, outputCount, templateId) {
             var c = new Component({
                 x: x,
                 y: y,
-                width: width,
                 inputCount: inputCount,
                 outputCount: outputCount,
                 templateId: templateId

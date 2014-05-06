@@ -127,45 +127,52 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
         });
 
         // Drag & drop gates
-        $(".gate").draggable({
-            revert: true,
-            revertDuration: 0,
-            scroll: false,
-            cursor: "pointer",
-            helper: 'clone',
-            zIndex: 1000,
-            start: function(event, ui) { 
-                $(ui.helper).addClass("invalid");
-            },
-            drag: function(event, ui) { 
-                var x = Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5);
-                var y = Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5);
-                if (application.getCanvasModel().isEmptyRect(x, y, 7, 5)) {
-                    $(ui.helper).removeClass("invalid");
-                    // HACK: Force webkit browsers to display the class change
-                    $(ui.helper).css("display", "none");
-                    $(ui.helper).offset();
-                    $(ui.helper).css("display", "block");
-                } else {
+        $(".gate").each(function() {
+            $(this).draggable({
+                revert: true,
+                revertDuration: 0,
+                scroll: false,
+                cursor: "pointer",
+                cursorAt: {
+                    left: Math.round($(this).width() / 2),
+                    top: Math.round($(this).height() / 2),
+                },
+                helper: 'clone',
+                zIndex: 100,
+                start: function(event, ui) { 
                     $(ui.helper).addClass("invalid");
-                    $(ui.helper).css("display", "none");
-                    $(ui.helper).offset();
-                    $(ui.helper).css("display", "block");
-                }
-            },
+                },
+                drag: function(event, ui) { 
+                    var dummyComponent = new Component({
+                        inputCount: $(ui.helper).data("inputcount"),
+                        outputCount: $(ui.helper).data("outputcount")
+                    })
+                    var width = dummyComponent.get("width");
+                    var height = dummyComponent.getHeight();
+
+                    var x = Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - (width / 2));
+                    var y = Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - (height / 2));
+                    if (application.getCanvasModel().isEmptyRect(x, y, width, height)) {
+                        $(ui.helper).removeClass("invalid");
+                    } else {
+                        $(ui.helper).addClass("invalid");
+                    }
+                },
+            });
         });
-        $(".gate").draggable("option", "cursorAt", {
-            left: Math.round($(".gate").width() / 2),
-            top: Math.round($(".gate").height() / 2)
-        }); 
 
         $("#workbench").droppable({ 
             accept: ".gate", 
             drop: function(event, ui) {
+                var dummyComponent = new Component({
+                    inputCount: $(ui.helper).data("inputcount"),
+                    outputCount: $(ui.helper).data("outputcount")
+                })
+                var width = dummyComponent.get("width");
+                var height = dummyComponent.getHeight();
                 application.addComponent(
-                    Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - 3.5), 
-                    Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - 2.5),
-                    7,
+                    Math.round((event.pageX - $("#workbench").offset().left) / GRID_SIZE - (width / 2)), 
+                    Math.round((event.pageY - $("#workbench").offset().top) / GRID_SIZE - (height / 2)),
                     $(ui.helper).data("inputcount"),
                     $(ui.helper).data("outputcount"),
                     $(ui.helper).data("templateid")

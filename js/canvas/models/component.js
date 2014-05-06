@@ -11,10 +11,26 @@ define([
                 y: 0,
                 inputCount: 2,
                 outputCount: 1,
-                width: 7,
                 isValid: true,
                 activeInputIndex: -1,
                 activeOutputIndex: -1
+            }
+        },
+
+        initialize: function() {
+            if (typeof this.get("width") == "undefined") {
+                var inputCount = this.get("inputCount");
+                var outputCount = this.get("outputCount");
+                var width;
+                if (inputCount === 0 || outputCount === 0) {
+                    width = 5;
+                } else if (inputCount < 2 && outputCount < 2) {
+                    width = 5;
+                } else {
+                    width = 7;
+                }
+
+                this.set("width", width);
             }
         },
 

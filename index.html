@@ -53,12 +53,16 @@
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">
                 <div class="row">
+                    <div data-templateid="on" data-inputcount="0" data-outputcount="1" class="gate gate-left"></div>
+                    <div data-templateid="off" data-inputcount="0" data-outputcount="1" class="gate gate-right"></div>
+                </div>
+                <div class="row">
                     <div data-templateid="and" data-inputcount="2" data-outputcount="1" class="gate gate-left"></div>
                     <div data-templateid="or" data-inputcount="2" data-outputcount="1" class="gate gate-right"></div>
                 </div>
                 <div class="row">
                     <div data-templateid="not" data-inputcount="1" data-outputcount="1" class="gate gate-left"></div>
-                    <div data-templateid="xor" class="large-6 columns gate2"></div>
+                    <div data-templateid="xor" data-inputcount="2" data-outputcount="1"  class="gate gate-right"></div>
                 </div>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
@@ -69,8 +73,6 @@
             <div id="pane-4" class="panel" style="display:none;"></div>
             <div data-pane="pane-5" class="button dropdown slider" href="#">Input/Output</div>
             <div id="pane-5" class="panel" style="display:none;"></div>
-            <div data-pane="pane-6" class="button dropdown slider" href="#">Custom</div>
-            <div id="pane-6" class="panel" style="display:none;"></div>
         </div>
         <div class="large-8 medium-12 small-12 columns collpase">
             <canvas id="workbench"></canvas>

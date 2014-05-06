@@ -22,6 +22,21 @@ define([
             var model = this.model;
 
             var objects = [];
+
+            // Dummy objects so even components with no inputs/outputs are the correct width
+            objects.push(new fabric.Rect({
+                left: 0,
+                top: 0,
+                height: 0,
+                width: 0
+            }));
+            objects.push(new fabric.Rect({
+                left: model.get("width") * GRID_SIZE,
+                top: 0,
+                height: 0,
+                width: 0
+            }));
+
             var gate = TemplateFactory.getTemplate(model.get("templateId"), model.get("width") - 2, model.getHeight());
             gate.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
             gate.set({

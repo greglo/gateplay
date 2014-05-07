@@ -111,6 +111,23 @@ define([
         }
     };
 
+    Circuit.prototype._getComponentOutputs = function(componentId) {
+        var component = this.getComponent(componentId);
+        var outputs = [];
+
+        for (var i = 0; i < component.getOutputCount(); i++) {
+            var value = TruthValue.UNKNOWN;
+            var wires = this.getWiresFromPort(componentId, i);
+            if (wires.length > 0) {
+                value = wires[0].truthValue;
+            }
+
+            outputs.push(value);
+        }
+
+        return outputs;
+    };
+
     Circuit.prototype.setToggleValue = function(componentId, truthValue) {
         var component = this.getComponent(componentId);
 
@@ -169,29 +186,32 @@ define([
 
     Circuit.prototype._componentInputsChanged = function(cid, e) {
         var c = this.getComponent(cid);
+        var previousOutputs = this._getComponentOutputs(cid);
         var inputs = this._getComponentInputs(cid);
         var outputs = c.evaluate(inputs, this._clock);
         
-        // Generate new events for each output
+        // Generate new events for each output which changes
         for (var i = 0; i < outputs.length; i++) {
-            var unknownTime = e.eventTime + c.getDelay();
-            var knownTime = unknownTime + c.getDelayUncertainty();
+            if (outputs[i] === TruthValue.UNKNOWN || outputs[i] !== previousOutputs[i]) {
+                var unknownTime = e.eventTime + c.getDelay();
+                var knownTime = unknownTime + c.getDelayUncertainty();
 
-            var unknownEvent = new CircuitEvent(unknownTime, cid, i, TruthValue.UNKNOWN);
-            this._addEvent(unknownEvent);
-            
-            // Only add the second event if it is not a duplicate of the first
-            if (outputs[i] !== TruthValue.UNKNOWN) {
-                var knownEvent = new CircuitEvent(knownTime, cid, i, outputs[i]);
-                this._addEvent(knownEvent);
-            }
-            
-            var outputWires = this.getWiresFromPort(cid, i);
-            _.each(outputWires, function(outputWire) {
-                if (outputWire) {
-                    outputWire.unstableUntil = knownTime;
+                var unknownEvent = new CircuitEvent(unknownTime, cid, i, TruthValue.UNKNOWN);
+                this._addEvent(unknownEvent);
+                
+                // Only add the second event if it is not a duplicate of the first
+                if (outputs[i] !== TruthValue.UNKNOWN) {
+                    var knownEvent = new CircuitEvent(knownTime, cid, i, outputs[i]);
+                    this._addEvent(knownEvent);
                 }
-            }.bind(this))
+                
+                var outputWires = this.getWiresFromPort(cid, i);
+                _.each(outputWires, function(outputWire) {
+                    if (outputWire) {
+                        outputWire.unstableUntil = knownTime;
+                    }
+                }.bind(this))
+            }
         }
     };
 

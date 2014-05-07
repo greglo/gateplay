@@ -25,11 +25,19 @@ define([
     };
 
     Component.prototype.getDelay = function() {
-        return this._evalFunc.getDelay();
+        if (this._evalFunc != null) {
+            return this._evalFunc.getDelay();
+        } else {
+            return 0;
+        }
     };
 
     Component.prototype.getDelayUncertainty = function() {
-        return this._evalFunc.getMaxUncertaintyDuration();
+        if (this._evalFunc != null) {
+            return this._evalFunc.getMaxUncertaintyDuration();
+        } else {
+            return 0;
+        }
     };
 
     Component.prototype.isValidInputPort = function(portId) {
@@ -41,6 +49,10 @@ define([
     };
 
     Component.prototype.evaluate = function(truthValues, clock) {
+        if (this._outputCount === 0) {
+            return [];
+        }
+
         if (typeof truthValues == "undefined" || !truthValues instanceof Array)
             throw "truthValues must be of type Array";
 

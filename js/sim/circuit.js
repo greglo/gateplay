@@ -136,9 +136,6 @@ define([
             }
         }, this);
 
-        // REMOVE THIS
-        this._addEvent(new CircuitEvent(0, 6, 0, TruthValue.TRUE));
-
         if (initialCount === 0) {
             console.warn("No initial components in the circuit");
         }

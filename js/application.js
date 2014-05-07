@@ -145,6 +145,11 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         simulation.addWireEventListener(function(id, truthValue) {
             var wire = wires.get(id);
             wire.set("truthValue", truthValue);
+
+            var component = components.get(wire.get("targetId"));
+            if (component.get("templateId") === "led") {
+                component.set("truthValue", truthValue);
+            }
         })
     };
 

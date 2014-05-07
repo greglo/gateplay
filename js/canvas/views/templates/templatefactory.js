@@ -108,6 +108,7 @@ define([
                     break;
 
                 case "toggle":
+                case "led":
                     var radius = height / 2;
                     var circle = new fabric.Circle({
                         left: 0,

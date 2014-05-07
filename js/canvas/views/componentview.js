@@ -103,7 +103,7 @@ define([
             } else if (this.model.get("templateId") === "off") {
                 validColor = "red";
                 invalidColor = "red";
-            } else if (this.model.get("templateId") === "toggle") {
+            } else if (this.model.get("templateId") === "toggle" || this.model.get("templateId") === "led") {
                 var truthValue = this.model.get("truthValue");
                 if (truthValue === TruthValue.TRUE) {
                     validColor = "green";
@@ -111,6 +111,9 @@ define([
                 } else if (truthValue === TruthValue.FALSE) {
                     validColor = "red";
                     invalidColor = "red";
+                } else if (truthValue === TruthValue.UNKNOWN) {
+                    validColor = "gray";
+                    invalidColor = "gray";
                 }
             }
 

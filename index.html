@@ -50,24 +50,23 @@
 
 	<div class="row main-row">
         <div class="large-2 medium-12 small-12 columns sidebar sidebar-left">
+            <div data-pane="pane-5" class="button dropdown slider" href="#">Input/Output</div>
+            <div id="pane-5" class="panel" style="display:none;">
+                <table>
+                    <tr><td>On</td><td><div data-templateid="on" data-inputcount="0" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>Off</td><td><div data-templateid="off" data-inputcount="0" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>Toggle</td><td><div data-templateid="toggle" data-inputcount="0" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>LED</td><td><div data-templateid="led" data-inputcount="1" data-outputcount="0" class="gate"></div></td></tr>
+                </table>
+            </div>
             <div data-pane="pane-1" class="button dropdown slider" href="#">Basic Gates</div>
             <div id="pane-1" class="panel" style="display:none;">
-                <div class="row">
-                    <div data-templateid="on" data-inputcount="0" data-outputcount="1" class="gate gate-left"></div>
-                    <div data-templateid="off" data-inputcount="0" data-outputcount="1" class="gate gate-right"></div>
-                </div>
-                <div class="row">
-                    <div data-templateid="toggle" data-inputcount="0" data-outputcount="1" class="gate gate-left"></div>
-                    <div data-templateid="led" data-inputcount="1" data-outputcount="0" class="gate gate-right"></div>
-                </div>
-                <div class="row">
-                    <div data-templateid="and" data-inputcount="2" data-outputcount="1" class="gate gate-left"></div>
-                    <div data-templateid="or" data-inputcount="2" data-outputcount="1" class="gate gate-right"></div>
-                </div>
-                <div class="row">
-                    <div data-templateid="not" data-inputcount="1" data-outputcount="1" class="gate gate-left"></div>
-                    <div data-templateid="xor" data-inputcount="2" data-outputcount="1"  class="gate gate-right"></div>
-                </div>
+                <table>
+                    <tr><td>NOT</td><td><div data-templateid="not" data-inputcount="1" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>AND</td><td><div data-templateid="and" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>OR</td><td><div data-templateid="or" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>XOR</td><td><div data-templateid="xor" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                </table>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
             <div id="pane-2" class="panel" style="display:none;"></div>
@@ -75,8 +74,6 @@
             <div id="pane-3" class="panel" style="display:none;"></div>
             <div data-pane="pane-4" class="button dropdown slider" href="#">Timing</div>
             <div id="pane-4" class="panel" style="display:none;"></div>
-            <div data-pane="pane-5" class="button dropdown slider" href="#">Input/Output</div>
-            <div id="pane-5" class="panel" style="display:none;"></div>
         </div>
         <div class="large-8 medium-12 small-12 columns collpase">
             <canvas id="workbench"></canvas>

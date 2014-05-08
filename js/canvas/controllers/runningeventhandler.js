@@ -12,6 +12,10 @@ function(TruthValue) {
         this._hoverComponent = null;
     }
 
+    
+    RunningEventHandler.prototype.keyPressed = function(keyCode) {
+    };
+
     RunningEventHandler.prototype.objectHover = function(target) {
         if (target.class === "gate") {
             this._hoverComponent = target;
@@ -56,6 +60,10 @@ function(TruthValue) {
     };
 
     RunningEventHandler.prototype.objectSelected = function() {
+
+    };
+
+    RunningEventHandler.prototype.selectionCleared = function() {
 
     };
 

@@ -37,7 +37,6 @@ define([
 
         drawBackgroundGrid: function() {
             // Create a background tile to pattern across the back of the canvas
-
             var rasterizer = new fabric.StaticCanvas("rasterizer");
             rasterizer.setWidth(this.options.GRID_SIZE);
             rasterizer.setHeight(this.options.GRID_SIZE);

@@ -55,9 +55,17 @@ define([
             return c.get("id");
         },
 
-        removeComponent: function(c) {
-            this._setPoints(this._getComponentPoints(c), this.EMPTY);
-            this.get("components").remove(c);
+        removeComponent: function(cid) {
+            var component = this.get("components").get(cid);
+            this._setPoints(this._getComponentPoints(component), this.EMPTY);
+            this.get("components").remove(cid);
+
+            var existingWires = this.get("wires");
+            var filteredWires = existingWires.filter(function(wire) {
+                return wire.get("sourceId") === cid || wire.get("targetId") === cid;
+            });
+
+            this.get("wires").remove(filteredWires);
         },
 
         addWire: function(sourceId, sourcePort, targetId, targetPort, fixedPoints) {

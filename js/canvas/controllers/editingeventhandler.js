@@ -29,8 +29,21 @@ function(_, Wire) {
             isLastPointSet: true
         };
 
+        this._selectedObjects = [];
+
         var canvas = applicationState.getCanvas();
         canvas.selection = true;
+    }
+
+    EditingEventHandler.prototype.keyPressed = function(keyCode) {
+        if (keyCode === 46) {
+            var canvasModel = this._applicationState.getCanvasModel();
+            var deletionIds = _.pluck(this._selectedObjects, "id");
+            console.log(this._selectedObjects);
+            _.each(deletionIds, function(id) {
+                canvasModel.removeComponent(id);
+            });
+        }
     }
 
     EditingEventHandler.prototype.objectHover = function(target, pointer) {
@@ -76,8 +89,10 @@ function(_, Wire) {
         if (target.class === "gate") {
             var canvasModel = this._applicationState.getCanvasModel();
             var model = canvasModel.get("components").get(target.id);
+            if (typeof model != "undefined" && model != null) {
+                model.clearActivePort();
+            }
             this._drawData.endObject = null;
-            model.clearActivePort();
 
             if (this._mouse.eventType !== "draw") {
                 this._drawData.startPort = null;
@@ -91,19 +106,24 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype.objectSelected = function(selectionEvent) {
-        selectionEvent.target.hasControls = false;
+        var target = selectionEvent.target;
 
-        // If we are selecting a single gate, bring it to the front
-        if (selectionEvent.target.class === "gate") {
-            selectionEvent.target.bringToFront();
+        target.hasControls = false;
+
+        if (target.class === "gate") {
+            // If we are selecting a single gate, bring it to the front
+            target.bringToFront();
+            this._selectedObjects = [selectionEvent.target];
+        } else if (target.getObjects().length > 0) {
+            this._selectedObjects = target.getObjects().slice(0);
         }
     };
 
     EditingEventHandler.prototype.selectionCreated = function(selectionEvent) {
-        // If we are selecting multiple objects, bring each of them to the front in turn
-        _.each(selectionEvent.target.objects, function(object) {
-            object.bringToFront();
-        });
+    };
+
+    EditingEventHandler.prototype.selectionCleared = function(selectionEvent) {
+        this._selectedObjects = [];
     };
 
     EditingEventHandler.prototype.mouseDown = function(pointer) {

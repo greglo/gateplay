@@ -106,6 +106,10 @@ function($, ui, Foundation, fabric, Component, ComponentView, ApplicationState, 
             application.changeSimulationSpeed(Math.pow(1.5, ui.value) * 200);
         });
         application.changeSimulationSpeed(200);
+
+        $("body").keydown(function(e) {
+            application.keyPressed(e.which);
+        });
         
         // Accordion
         var lastMoved;

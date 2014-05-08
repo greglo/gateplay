@@ -31,12 +31,14 @@ define([
             });
 
             var sourceComponent = components.get(model.get("sourceId"));
-            var firstX = sourceComponent.get("x") + sourceComponent.get("width");
-            var firstY = sourceComponent.getOutputCoordinate(model.get("sourcePort"));
-            canvasFixedPoints.unshift({
-                x: (firstX - 0.5) * GRID_SIZE,
-                y: firstY * GRID_SIZE 
-            });
+            if (sourceComponent) {
+                var firstX = sourceComponent.get("x") + sourceComponent.get("width");
+                var firstY = sourceComponent.getOutputCoordinate(model.get("sourcePort"));
+                canvasFixedPoints.unshift({
+                    x: (firstX - 0.5) * GRID_SIZE,
+                    y: firstY * GRID_SIZE 
+                });
+            }
             
 
             var targetComponent = components.get(model.get("targetId"));

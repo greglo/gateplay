@@ -49,10 +49,15 @@ function(EditingEventHandler, RunningEventHandler) {
         this._canvas.on("object:out", this._objectOut.bind(this));
         this._canvas.on("object:selected", this._objectSelected.bind(this));
         this._canvas.on("selection:created", this._selectionCreated.bind(this));
+        this._canvas.on("selection:cleared", this._selectionCleared.bind(this));
 
         this._canvas.on("mouse:down", this._mouseDown.bind(this));
         this._canvas.on("mouse:up", this._mouseUp.bind(this));
         this._canvas.on("mouse:move", this._mouseMove.bind(this));
+    }
+
+    CircuitController.prototype.keyPressed = function(keyCode) {
+        this._eventHandler.keyPressed(keyCode);
     }
 
     CircuitController.prototype._modeChanged = function(mode) {
@@ -82,6 +87,10 @@ function(EditingEventHandler, RunningEventHandler) {
 
     CircuitController.prototype._selectionCreated = function(selectionEvent) {
         this._eventHandler.selectionCreated(selectionEvent);
+    }
+
+    CircuitController.prototype._selectionCleared = function(selectionEvent) {
+        this._eventHandler.selectionCleared(selectionEvent);
     }
 
     CircuitController.prototype._mouseDown = function(mouseEvent) {

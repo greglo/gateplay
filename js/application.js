@@ -116,6 +116,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         this._tick();
     };
 
+    ApplicationState.prototype.keyPressed = function(keyCode) {
+        this._canvasController.keyPressed(keyCode);
+    };
+
     ApplicationState.prototype._nowRunning = function() {
         this._setClock(0);
 

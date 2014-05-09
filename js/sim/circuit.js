@@ -165,6 +165,8 @@ define([
     };
 
     Circuit.prototype.tick = function() {
+
+        // A particularly inefficient solution
         _.forEach(this._blinkers, function(blinker) {
             var outputs = blinker.evaluate([], this._clock);
             for (var i = 0; i < outputs.length; i++) {

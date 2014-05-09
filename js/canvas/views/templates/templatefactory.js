@@ -31,31 +31,48 @@ define([
 
             switch(templateId) {
                 case "and":
-                    var ellipse = new fabric.Ellipse({
-                        left: width * 0.2,
-                        top: 0,
+                    var rectWidth = width * 0.6;
+                    var path = new fabric.Path(
+                        "M " + rectWidth + "," + 0 + 
+                        "L " + 0 + "," + 0 + 
+                        "L " + 0 + "," + height + 
+                        "L " + rectWidth + "," + height + 
+                        "A " + (width * 0.4) + "," + (height / 2) + "," + 0 + "," + 0 + "," + 0 + "," + width + "," + (height / 2) +
+                        "A " + (width * 0.4) + "," + (height / 2) + "," + 0 + "," + 0 + "," + 0 + "," + rectWidth + "," + 0
+                        );
+                    path.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
+                    objects.push(path);
+                    fillableObjects.push(path);
+                    break;
+
+                case "nand":
+                    var oldWidth = width;
+                    var width = width * 0.8;
+
+                    var rectWidth = width * 0.6;
+                    var path = new fabric.Path(
+                        "M " + rectWidth + "," + 0 + 
+                        "L " + 0 + "," + 0 + 
+                        "L " + 0 + "," + height + 
+                        "L " + rectWidth + "," + height + 
+                        "A " + (width * 0.4) + "," + (height / 2) + "," + 0 + "," + 0 + "," + 0 + "," + width + "," + (height / 2) +
+                        "A " + (width * 0.4) + "," + (height / 2) + "," + 0 + "," + 0 + "," + 0 + "," + rectWidth + "," + 0
+                        );
+                    path.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
+                    objects.push(path);
+                    fillableObjects.push(path);
+
+                    var radius = oldWidth / 10;
+                    var circle = new fabric.Circle({
+                        left: width,
+                        top: height / 2 - radius,
                         fill: "white",
-                        rx: width * 0.4,
-                        ry: height * 0.5,
+                        radius: radius,
                         strokeWidth: this.STROKE_WIDTH,
                         stroke: this.GATE_COLOR
                     });
-                    objects.push(ellipse);
-                    fillableObjects.push(ellipse);
-                    var points = [];
-                    points.push({x:width * 0.6, y:0});
-                    points.push({x:0, y:0});
-                    points.push({x:0, y:height});
-                    points.push({x:width * 0.6, y:height});
-                    var poly = new fabric.Polyline(points, {
-                        left: 0,
-                        top: 0,
-                        stroke: this.GATE_COLOR,
-                        strokeWidth: this.STROKE_WIDTH,
-                        fill: "white"
-                    });
-                    objects.push(poly);
-                    fillableObjects.push(poly);
+                    objects.push(circle);
+
                     break;
 
                 case "or":
@@ -77,6 +94,41 @@ define([
                     path.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
                     objects.push(path);
                     fillableObjects.push(path);
+                    break;
+
+                case "nor":
+                    var oldWidth = width;
+                    var width = width * 0.8;
+
+                    // We do slightly more than a full path around the shape, to get pretty edges in the top left
+                    var widthOverFour = (width / 4);
+                    var widthOverThree = (width / 3);
+                    var twoWidthOverThree = widthOverThree * 2;
+                    var heightOverThree = height / 3;
+                    var twoHeightOverThree = heightOverThree * 2;
+                    var path = new fabric.Path(
+                        "M " + widthOverThree + "," + 0 + 
+                        "L " + 0 + "," + 0 + 
+                        "C " + widthOverFour + "," + heightOverThree + "," + widthOverFour + "," + twoHeightOverThree + "," + 0 + "," + height + 
+                        "L " + widthOverThree + "," + height +
+                        "C " + twoWidthOverThree + "," + height + "," + width + "," + twoHeightOverThree + "," + width + "," + (height / 2) + 
+                        "C " + width + "," + heightOverThree + "," + twoWidthOverThree + ",0," + widthOverThree + ",0" + 
+                        "L " + 0 + "," + 0
+                        );
+                    path.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
+                    objects.push(path);
+                    fillableObjects.push(path);
+
+                    var radius = oldWidth / 10;
+                    var circle = new fabric.Circle({
+                        left: width,
+                        top: height / 2 - radius,
+                        fill: "white",
+                        radius: radius,
+                        strokeWidth: this.STROKE_WIDTH,
+                        stroke: this.GATE_COLOR
+                    });
+                    objects.push(circle);
                     break;
 
                 case "xor":
@@ -114,28 +166,35 @@ define([
                     break;
 
                 case "not":
-                    var triangle = new fabric.Triangle({
-                        left: 0,
-                        top: 0,
-                        fill: "white",
-                        width: height,
-                        height: width * 0.75,
-                        strokeWidth: this.STROKE_WIDTH,
-                        stroke: this.GATE_COLOR
-                    });
-                    triangle.set("angle", 90);
+                    var triangle = new fabric.Path(
+                        "M 0,0" +
+                        "L 0," + height + 
+                        "L " + (width * 0.75) + "," + (height / 2) +
+                        "L 0,0" +
+                        "L 0," + height
+                        ,{
+                            left: 0,
+                            top: 0,
+                            fill: "white",
+                            strokeWidth: this.STROKE_WIDTH,
+                            stroke: this.GATE_COLOR,
+                            originX: "left",
+                            originY: "top"
+                        }
+                    );
+                    triangle.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
                     objects.push(triangle);
                     fillableObjects.push(triangle);
-                    var radius = height / 6;
+                    var radius = width / 6;
                     var circle = new fabric.Circle({
-                        left: width * 0.75 - radius,
+                        left: width * 0.75 - this.STROKE_WIDTH,
                         top: height / 2 - radius,
                         fill: "white",
                         radius: radius,
                         strokeWidth: this.STROKE_WIDTH,
                         stroke: this.GATE_COLOR
                     });
-                    //objects.push(circle);
+                    objects.push(circle);
                     break;
 
                 case "on":

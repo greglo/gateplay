@@ -6,9 +6,9 @@ define([
     function FunctionStore() {
         this._store = {};
     };
-    FunctionStore.prototype.get = function(id) {
+    FunctionStore.prototype.get = function(id, cArg) {
         if (id in this._store) {
-            return new this._store[id];
+            return new this._store[id](cArg);
         } else {
             console.warn("A non-existant EvaluationFunction was requested");
             return null;
@@ -46,25 +46,22 @@ define([
     }
 
     function On() {
-        EvaluationFunction.apply(this, arguments);
     }
-    On.prototype = new EvaluationFunction();
+    On.prototype = new EvaluationFunction(0, 0);
     On.prototype._doEvaluate = function(argList, clock) {
         return [TruthValue.TRUE];
     };
 
     function Off() {
-        EvaluationFunction.apply(this, arguments);
     }
-    Off.prototype = new EvaluationFunction();
+    Off.prototype = new EvaluationFunction(0, 0);
     Off.prototype._doEvaluate = function(argList, clock) {
         return [TruthValue.FALSE];
     };
 
     function Not() {
-        EvaluationFunction.apply(this, arguments);
     }
-    Not.prototype = new EvaluationFunction();
+    Not.prototype = new EvaluationFunction(1, 1);
     Not.prototype._doEvaluate = function(argList, clock) {
         var outputs = [];
         for (var i = 0; i < argList.length; i++) {
@@ -81,9 +78,8 @@ define([
     };
 
     function And() {
-        EvaluationFunction.apply(this, arguments);
     }
-    And.prototype = new EvaluationFunction();
+    And.prototype = new EvaluationFunction(2);
     And.prototype._doEvaluate = function(argList, clock) {
         var onlyTrue = true;
 
@@ -102,10 +98,30 @@ define([
         }
     };
 
-    function Or() {
-        EvaluationFunction.apply(this, arguments);
+    function Nand() {
     }
-    Or.prototype = new EvaluationFunction();
+    Nand.prototype = new EvaluationFunction(2);
+    Nand.prototype._doEvaluate = function(argList, clock) {
+        var onlyTrue = true;
+
+        for (var i = 0; i < argList.length; i++) {
+            var v = argList[i];
+            if (v === TruthValue.FALSE) {
+                return [TruthValue.TRUE];
+            }
+            onlyTrue = onlyTrue && v === TruthValue.TRUE;
+        }
+
+        if (onlyTrue) {
+            return [TruthValue.FALSE];
+        } else { 
+            return [TruthValue.UNKNOWN];
+        }
+    };
+
+    function Or() {
+    }
+    Or.prototype = new EvaluationFunction(2);
     Or.prototype._doEvaluate = function(argList, clock) {
         var anyUnknown = false;
 
@@ -124,11 +140,30 @@ define([
         }
     };
 
+    function Nor() {
+    }
+    Nor.prototype = new EvaluationFunction(2);
+    Nor.prototype._doEvaluate = function(argList, clock) {
+        var anyUnknown = false;
+
+        for (var i = 0; i < argList.length; i++) {
+            var v = argList[i];
+            if (v === TruthValue.TRUE) {
+                return [TruthValue.FALSE];
+            }
+            anyUnknown = anyUnknown || v === TruthValue.UNKNOWN;
+        }
+
+        if (anyUnknown) {
+            return [TruthValue.UNKNOWN];
+        } else { 
+            return [TruthValue.TRUE];
+        }
+    };
 
     function Xor() {
-        EvaluationFunction.apply(this, arguments);
     }
-    Xor.prototype = new EvaluationFunction();
+    Xor.prototype = new EvaluationFunction(2);
     Xor.prototype._doEvaluate = function(argList, clock) {
         var anyUnknown = false;
         var trueParity = 0;
@@ -150,11 +185,24 @@ define([
     };
 
     function Toggle() {
-        EvaluationFunction.apply(this, arguments);
     }
-    Toggle.prototype = new EvaluationFunction();
+    Toggle.prototype = new EvaluationFunction(0, 0);
     Toggle.prototype._doEvaluate = function(argList, clock) {
         return [TruthValue.TRUE];
+    };
+
+    function Blinker(period) {
+        this._period = period;
+    }
+    Blinker.prototype = new EvaluationFunction(0, 0);
+    Blinker.prototype._doEvaluate = function(argList, clock) {
+        var period = Math.floor(clock / this._period);
+        var parity = period % 2;
+        if (parity === 0) {
+            return [TruthValue.TRUE];
+        } else {
+            return [TruthValue.FALSE];
+        }
     };
 
     var fs = new FunctionStore();
@@ -163,8 +211,11 @@ define([
     fs.put("not", Not);
     fs.put("and", And);
     fs.put("or", Or);
+    fs.put("nand", Nand);
+    fs.put("nor", Nor);
     fs.put("xor", Xor);
     fs.put("toggle", Toggle);
+    fs.put("blinker", Blinker);
 
 
     return fs;

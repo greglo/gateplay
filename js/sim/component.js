@@ -3,13 +3,14 @@ define([
     "underscore",
     "sim/functions"
 ], function(_, Functions) {
-    function Component(id, funcId, inputCount, outputCount, truthValue) {
+    function Component(id, funcId, inputCount, outputCount, cArg) {
         this._id = id;
         this._funcId = funcId;
         this._inputCount = inputCount;
         this._outputCount = outputCount;
+        this._cArg = cArg;
 
-        this._evalFunc = Functions.get(funcId);
+        this._evalFunc = Functions.get(funcId, cArg);
     }
 
     Component.prototype.getInputCount = function() {

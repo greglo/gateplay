@@ -9,6 +9,7 @@ define([
 ], function(_, PriorityQueue, Component, Wire, CircuitEvent, TruthValue) {
     function Circuit() {
         this._components = {};
+        this._blinkers = [];
         this._wiresFromOutput = {};
         this._wiresToComponent = {};
         this._clock = 0;
@@ -35,9 +36,12 @@ define([
         }
     };
 
-    Circuit.prototype.addComponent = function(id, functionId, inputCount, outputCount) {
-        var component = new Component(id, functionId, inputCount, outputCount);
+    Circuit.prototype.addComponent = function(id, functionId, inputCount, outputCount, cArg) {
+        var component = new Component(id, functionId, inputCount, outputCount, cArg);
         this._addComponent(id, component);
+        if (functionId === "blinker") {
+            this._blinkers.push(component);
+        }
     };
 
     Circuit.prototype._addComponent = function(id, component) {
@@ -145,7 +149,7 @@ define([
         _.forEach(this._components, function(component, id) {
             if (component.getInputCount() === 0) {
                 initialCount++;
-                var outputs = component.evaluate([]);
+                var outputs = component.evaluate([], this._clock);
                 for (var i = 0; i < outputs.length; i++) {
                     var circuitEvent = new CircuitEvent(0, id, i, outputs[i]);
                     this._addEvent(circuitEvent);
@@ -156,9 +160,19 @@ define([
         if (initialCount === 0) {
             console.warn("No initial components in the circuit");
         }
+
+
     };
 
     Circuit.prototype.tick = function() {
+        _.forEach(this._blinkers, function(blinker) {
+            var outputs = blinker.evaluate([], this._clock);
+            for (var i = 0; i < outputs.length; i++) {
+                var circuitEvent = new CircuitEvent(this._clock, blinker._id, i, outputs[i]);
+                this._addEvent(circuitEvent);
+            }
+        }, this);
+
         // Pop all events which need to be processed
         while (this._events.length > 0 && this._events.peek().eventTime <= this._clock) {
             var e = this._events.dequeue();

@@ -42,7 +42,7 @@
                 <li><div id="slider-container" class="disabled" data-tooltip title="Simulation Speed"><div id="slider"></div></div></li>
             </ul>
 
-            <div id="clock" class="right">
+            <div id="clock">
 
             </div>
         </section>
@@ -66,20 +66,41 @@
                     <tr><td>AND</td><td><div data-templateid="and" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
                     <tr><td>OR</td><td><div data-templateid="or" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
                     <tr><td>XOR</td><td><div data-templateid="xor" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>NAND</td><td><div data-templateid="nand" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>NOR</td><td><div data-templateid="nor" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
                 </table>
             </div>
             <div data-pane="pane-2" class="button dropdown slider" href="#">Composite Gates</div>
-            <div id="pane-2" class="panel" style="display:none;"></div>
+            <div id="pane-2" class="panel" style="display:none;">
+                <table>
+                    <tr><td>Half Adder</td><td><div data-templateid="ha" data-inputcount="2" data-outputcount="2" class="gate"></div></td></tr>
+                    <tr><td>Full Adder</td><td><div data-templateid="fa" data-inputcount="3" data-outputcount="2" class="gate"></div></td></tr>
+                </table>
+            </div>
             <div data-pane="pane-3" class="button dropdown slider" href="#">Memory</div>
-            <div id="pane-3" class="panel" style="display:none;"></div>
+            <div id="pane-3" class="panel" style="display:none;">
+                <table>
+                    <tr><td>SR Latch</td><td><div data-templateid="sr" data-inputcount="2" data-outputcount="1" class="gate"></div></td></tr>
+                    <tr><td>D Flip-Flop</td><td><div data-templateid="dfl" data-inputcount="2" data-outputcount="2" class="gate"></div></td></tr>
+                </table>
+            </div>
             <div data-pane="pane-4" class="button dropdown slider" href="#">Timing</div>
-            <div id="pane-4" class="panel" style="display:none;"></div>
+            <div id="pane-4" class="panel" style="display:none;">
+                <table>
+                    <tr><td>10 Blinker</td><td><div data-templateid="blinker" data-inputcount="0" data-outputcount="1" data-carg="10" class="gate"></div></td></tr>
+                    <tr><td>20 Blinker</td><td><div data-templateid="blinker" data-inputcount="0" data-outputcount="1" data-carg="20" class="gate"></div></td></tr>
+                    <tr><td>50 Blinker</td><td><div data-templateid="blinker" data-inputcount="0" data-outputcount="1" data-carg="50" class="gate"></div></td></tr>
+                </table>
+            </div>
         </div>
         <div class="large-8 medium-12 small-12 columns collpase">
             <canvas id="workbench"></canvas>
             <canvas id="rasterizer" style="display: none;"></canvas>
         </div>
         <div class="large-2 medium-12 small-12 columns sidebar sidebar-right">
+            <div class="panel">
+
+            </div>
         </div>
 	</div>
 </body>

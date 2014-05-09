@@ -84,9 +84,9 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         this._clockListeners.push(f);
     };
 
-    ApplicationState.prototype.addComponent = function(x, y, inputCount, outputCount, templateId) {
+    ApplicationState.prototype.addComponent = function(x, y, inputCount, outputCount, templateId, carg) {
         if (this._mode === this.MODE_EDIT) {
-            return this._canvasModel.addComponent(x, y, inputCount, outputCount, templateId);
+            return this._canvasModel.addComponent(x, y, inputCount, outputCount, templateId, carg);
         }
     };
 
@@ -130,10 +130,12 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
         // Add components
         var components = this._canvasModel.get("components");
         _.each(components.models, function(c) {
-            simulation.addComponent(c.get("id"), c.get("templateId"), c.get("inputCount"), c.get("outputCount"));
+            simulation.addComponent(c.get("id"), c.get("templateId"), c.get("inputCount"), c.get("outputCount"), c.get("cArg"));
 
-            if (c.get("templateId") === "toggle") {
+            if (c.get("templateId") === "toggle" || c.get("templateId") === "blinker") {
                 c.set("truthValue", "True");
+            } else if (c.get("templateId") === "led") {
+                c.set("truthValue", "Unknown");
             }
         })
 

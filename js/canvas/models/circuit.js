@@ -8,7 +8,6 @@ define([
 ], function(_, Backbone, Component, Wire, ComponentSet, WireSet) {
     return Backbone.Model.extend({
         EMPTY: -1,
-        WIRE: -2,
 
         initialize: function(options) {
             if (typeof options.width == "undefined" || options.width < 0)
@@ -19,32 +18,37 @@ define([
             this.set("components", new ComponentSet());
             this.set("wires", new WireSet());
 
-            var emptyLocationMap = [];
+            var emptyGateMap = [];
+            var emptyWireMap = [];
             for (var x = 0; x < options.width; x++) {
-                emptyLocationMap[x] = [];
+                emptyGateMap[x] = [];
+                emptyWireMap[x] = [];
                 for (var y = 0; y < options.height; y++) {
-                    emptyLocationMap[x][y] = this.EMPTY;
+                    emptyGateMap[x][y] = this.EMPTY;
+                    emptyWireMap[x][y] = [];
                 }
             }
-            this.set("locationMap", emptyLocationMap);
+            this.set("gateMap", emptyGateMap);
+            this.set("wireMap", emptyWireMap);
         },
 
         isEmptyRect: function(x, y, width, height) {
             var points = this._getPointsInRect(x, y, width, height);
-            return this._areValidPoints(points, []);
+            return this._areValidGatePoints(points, []);
         },
 
-        addComponent: function(x, y, inputCount, outputCount, templateId) {
+        addComponent: function(x, y, inputCount, outputCount, templateId, cArg) {
             var c = new Component({
                 x: x,
                 y: y,
                 inputCount: inputCount,
                 outputCount: outputCount,
-                templateId: templateId
+                templateId: templateId,
+                cArg: cArg
             });
 
             var points = this._getComponentPoints(c);
-            var valid = this._areValidPoints(points, [c.id]);
+            var valid = this._areValidGatePoints(points, [c.id]);
             
             if (!valid)
                 return false;
@@ -113,7 +117,7 @@ define([
                 var c = components.get(t.id);
 
                 var points = this._getPointsInRect(t.newX, t.newY, c.get("width"), c.getHeight());
-                var valid = this._areValidPoints(points, validIds);
+                var valid = this._areValidGatePoints(points, validIds);
 
                 if (!valid)
                     return false;
@@ -158,7 +162,7 @@ define([
 
 
         _clearPoints: function(points, id) {
-            var map = this.get("locationMap");
+            var map = this.get("gateMap");
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
                 if (map[point.x][point.y] == id)
@@ -167,24 +171,24 @@ define([
         },
 
         _setPoints: function(points, newId) {
-            var map = this.get("locationMap");
+            var map = this.get("gateMap");
             for (var i = 0; i < points.length; i++) {
                 var point = points[i];
                 map[point.x][point.y] = newId;
             }
         },
 
-        _areValidPoints: function(points, allowedIds) {
+        _areValidGatePoints: function(points, allowedIds) {
             var i = 0;
             var valid = true;
             while (valid && i < points.length) {
-                valid = this._isValidPoint(points[i], allowedIds);
+                valid = this._isValidGatePoint(points[i], allowedIds);
                 i++;
             }
             return valid;
         },
 
-        _isValidPoint: function(point, allowedIds) {
+        _isValidGatePoint: function(point, allowedIds) {
             if (point.x < 0 || point.x >= this.get("width")) {
                 return false;
             }
@@ -192,8 +196,9 @@ define([
                 return false;
             }
 
-            var actualId = this.get("locationMap")[point.x][point.y];
-            return actualId == this.EMPTY || _.contains(allowedIds, actualId);
+            var actualId = this.get("gateMap")[point.x][point.y];
+            var isNotWirePoint = this.get("wireMap")[point.x][point.y].length === 0;
+            return actualId == this.EMPTY || _.contains(allowedIds, actualId) && isNotWirePoint;
         }
     });
 })

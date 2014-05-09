@@ -39,7 +39,6 @@ function(_, Wire) {
         if (keyCode === 46) {
             var canvasModel = this._applicationState.getCanvasModel();
             var deletionIds = _.pluck(this._selectedObjects, "id");
-            console.log(this._selectedObjects);
             _.each(deletionIds, function(id) {
                 canvasModel.removeComponent(id);
             });

@@ -1,14 +1,16 @@
 define([
+    "underscore",
     "backbone",
     "fabric",
     "canvas/views/templates/templatefactory",
     "sim/truthvalue"
-], function(Backbone, fabric, TemplateFactory, TruthValue) {
+], function(_, Backbone, fabric, TemplateFactory, TruthValue) {
     return Backbone.View.extend({
         initialize: function(options) {
             this.options = options.options;
             this.model = options.model;
             this._template = null;
+            this._fillableObjects = null;
             this._inputs = [];
             this._outputs = [];
             this._activePort = null;
@@ -39,16 +41,6 @@ define([
                 width: 0
             }));
 
-            var gate = TemplateFactory.getTemplate(model.get("templateId"), model.get("width") - 2, model.getHeight());
-            gate.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
-            gate.set({
-                left:GRID_SIZE,
-                top: 0,
-                width: (model.get("width") - 2) * TemplateFactory.BOX_SIZE,
-                height: (model.getHeight() + 0) * TemplateFactory.BOX_SIZE,
-            });
-            objects.push(gate);
-
             var nextInputY = (model.getInputCoordinate(0) - model.get("y")) * GRID_SIZE;
             for (var i = 0; i < model.get("inputCount"); i++) {
                 var input = TemplateFactory.getWire();
@@ -58,6 +50,16 @@ define([
                 })
                 input.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
                 this._inputs.push(input);
+
+                var dummyInput = TemplateFactory.getWire();
+                dummyInput.set({
+                    left: GRID_SIZE,
+                    top: nextInputY,
+                })
+                dummyInput.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
+                objects.push(dummyInput);
+
+
                 nextInputY += GRID_SIZE * 2;
             }
             objects = objects.concat(this._inputs);
@@ -71,10 +73,31 @@ define([
                 })
                 output.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
                 this._outputs.push(output);
+
+                var dummyOutput = TemplateFactory.getWire();
+                dummyOutput.set({
+                    left: (model.get("width") - 2) * GRID_SIZE,
+                    top: nextOutputY,
+                })
+                dummyOutput.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
+                objects.push(dummyOutput);
+
                 nextOutputY += GRID_SIZE * 2;
             }
             objects = objects.concat(this._outputs);
 
+            var factoryObject = TemplateFactory.getTemplate(model.get("templateId"), model.get("width") - 2, model.getHeight());
+            var gate = factoryObject.template;
+            gate.scale(GRID_SIZE / TemplateFactory.BOX_SIZE);
+            gate.set({
+                left:GRID_SIZE,
+                top: 0,
+                width: (model.get("width") - 2) * TemplateFactory.BOX_SIZE,
+                height: (model.getHeight() + 0) * TemplateFactory.BOX_SIZE,
+            });
+            objects.push(gate);
+
+            this._fillableObjects = factoryObject.fillableObjects;
             this._template = new fabric.Group(objects);
 
             // We associate the canvas element with its backbone model
@@ -117,12 +140,17 @@ define([
                 }
             }
 
+            var fillColor;
 
             if (this.model.get("isValid")) {
-                this._template.setFill(validColor);
+                fillColor = validColor;
             } else {
-                this._template.setFill(invalidColor);
+                fillColor = invalidColor;
             }
+
+            _.each(this._fillableObjects, function(object) {
+                object.setFill(fillColor);
+            });
 
             this.options.canvas.renderAll();
         },
@@ -137,7 +165,7 @@ define([
 
         _activePortChanged: function(collection, index) {
             if (this._activePort != null) {
-                this._activePort.setStroke("black");
+                this._activePort.setStroke(TemplateFactory.WIRE_COLOR);
             }
 
             if (index != -1) {

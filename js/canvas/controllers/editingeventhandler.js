@@ -16,6 +16,7 @@ function(_, Wire) {
             startY: null,
             isDown: false,
             isValidMove: false,
+            objectMoved: false,
             existingSelection: null,
             lastClickPoint: null
         };
@@ -194,7 +195,9 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype._movingStarted = function(pointer) {
-
+        var startObject = this._mouse.startObject;
+        this._mouse.objectStartX = startObject.left;
+        this._mouse.objectStartY = startObject.top;
     }
 
     EditingEventHandler.prototype._moving = function(moveEvent) {
@@ -211,14 +214,22 @@ function(_, Wire) {
     };
 
     EditingEventHandler.prototype._movingStopped = function() {
-        // If we made an invalid move, set the object back to its original position
-        
-        if (this._mouse.startObject && this.isValidTarget(this._mouse.startObject) && !this._mouse.isValidMove) {
-            this._mouse.startObject.set({
-                left: this._mouse.startX - this._mouse.innerOffsetX,
-                top: this._mouse.startY - this._mouse.innerOffsetY
-            });
-            this._updateLocation(this._mouse.startObject);
+        if (this._mouse.startObject && this.isValidTarget(this._mouse.startObject)) {
+            if (this._mouse.isValidMove) {
+                if (this._mouse.objectMoved && this._selectedObjects) {
+                    var canvasModel = this._applicationState.getCanvasModel();
+                    _.each(this._selectedObjects, function(object) {
+                        canvasModel.removeWiresFromComponent(object.id);
+                    });
+                }
+            } else {
+                // If we made an invalid move, set the object back to its original position
+                this._mouse.startObject.set({
+                    left: this._mouse.startX - this._mouse.innerOffsetX,
+                    top: this._mouse.startY - this._mouse.innerOffsetY
+                });
+                this._updateLocation(this._mouse.startObject);
+            }
         }
     };
 
@@ -345,6 +356,11 @@ function(_, Wire) {
                 left: newLeft,
                 top: newTop
             });
+
+            var objectMoved = false;
+            objectMoved = objectMoved || this._mouse.objectStartX != target.left;
+            objectMoved = objectMoved || this._mouse.objectStartY != target.top;
+            this._mouse.objectMoved = objectMoved;
 
 
             if (typeof target.id != "undefined") {

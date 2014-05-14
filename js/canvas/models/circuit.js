@@ -64,7 +64,13 @@ define([
             this._setPoints(this._getComponentPoints(component), this.EMPTY);
             this.get("components").remove(cid);
 
+            this.removeWiresFromComponent(cid);
+        },
+
+        removeWiresFromComponent: function(cid) {
+            var component = this.get("components").get(cid);
             var existingWires = this.get("wires");
+            
             var filteredWires = existingWires.filter(function(wire) {
                 return wire.get("sourceId") === cid || wire.get("targetId") === cid;
             });

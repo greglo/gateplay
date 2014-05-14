@@ -29,7 +29,7 @@ define([
             this.options.components.on("remove", this.render, this);
 
             this.options.wires.on("add", this._addWire, this);
-            this.options.wires.on("remove", this.render, this);
+            this.options.wires.on("remove", this._removeWire, this);
 
             this.drawBackgroundGrid();
             this.render();
@@ -88,6 +88,10 @@ define([
                 model: wire
             });
             view.render(); 
+        },
+
+        _removeWire: function(wire) {
+            this.render(); 
         }
     });
 });

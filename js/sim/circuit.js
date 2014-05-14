@@ -160,12 +160,9 @@ define([
         if (initialCount === 0) {
             console.warn("No initial components in the circuit");
         }
-
-
     };
 
     Circuit.prototype.tick = function() {
-
         // A particularly inefficient solution
         _.forEach(this._blinkers, function(blinker) {
             var outputs = blinker.evaluate([], this._clock);
@@ -175,32 +172,41 @@ define([
             }
         }, this);
 
-        // Pop all events which need to be processed
-        while (this._events.length > 0 && this._events.peek().eventTime <= this._clock) {
-            var e = this._events.dequeue();
+        if (this._events.length > 0) {
+            var lowestEventTime = this._events.peek().eventTime;
 
-            var eventWires = this.getWiresFromPort(e.sourceId, e.sourcePort);
-            var affectedComponentIds = {};
+                while (lowestEventTime <= this._clock) {
+                    var affectedComponentIds = {};
 
-            _.each(eventWires, function(eventWire) {
-                // If the event is changing something in the circuit
-                if (eventWire && eventWire.truthValue !== e.truthValue) {
-                    // If the event is not superceded by a previous event 
-                    if (e.truthValue === TruthValue.UNKNOWN || e.eventTime >= eventWire.unstableUntil) {
-                        this._changeWireValue(eventWire, e.truthValue);
-                        affectedComponentIds[eventWire.destId] = true;
+                    // Pop all events of lowestEventTime
+                    while (this._events.length > 0 && this._events.peek().eventTime === lowestEventTime) {
+                        var e = this._events.dequeue();
+                        var eventWires = this.getWiresFromPort(e.sourceId, e.sourcePort);
+
+                        _.each(eventWires, function(eventWire) {
+                            // If the event is changing something in the circuit
+                            if (eventWire && eventWire.truthValue !== e.truthValue) {
+                                // If the event is not superceded by a previous event 
+                                if (e.truthValue === TruthValue.UNKNOWN || e.eventTime >= eventWire.unstableUntil) {
+                                    this._changeWireValue(eventWire, e.truthValue);
+                                    affectedComponentIds[eventWire.destId] = true;
+                                }
+                            }
+                        }.bind(this));
                     }
-                }
-            }.bind(this));
 
-            for (var cid in affectedComponentIds) {
-                this._componentInputsChanged(cid, e)
-            }
+                    for (var cid in affectedComponentIds) {
+                        this._componentInputsChanged(cid, lowestEventTime)
+                    }
+
+                    lowestEventTime++;
+                }
         }
+
         this._clock++;
     };
 
-    Circuit.prototype._componentInputsChanged = function(cid, e) {
+    Circuit.prototype._componentInputsChanged = function(cid, eventTime) {
         var c = this.getComponent(cid);
         var previousOutputs = this._getComponentOutputs(cid);
         var inputs = this._getComponentInputs(cid);
@@ -209,7 +215,7 @@ define([
         // Generate new events for each output which changes
         for (var i = 0; i < outputs.length; i++) {
             if (outputs[i] === TruthValue.UNKNOWN || outputs[i] !== previousOutputs[i]) {
-                var unknownTime = e.eventTime + c.getDelay();
+                var unknownTime = eventTime + c.getDelay();
                 var knownTime = unknownTime + c.getDelayUncertainty();
 
                 var unknownEvent = new CircuitEvent(unknownTime, cid, i, TruthValue.UNKNOWN);
@@ -232,7 +238,8 @@ define([
     };
 
     Circuit.prototype._addEvent = function(circuitEvent) {
-        this._events.queue(circuitEvent)
+        this._events.queue(circuitEvent);
+        console.log("Event added: " + circuitEvent.truthValue);
     };
 
 

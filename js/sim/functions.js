@@ -205,6 +205,100 @@ define([
         }
     };
 
+    function HalfAdder() {
+    }
+    HalfAdder.prototype = new EvaluationFunction(2, 2);
+    HalfAdder.prototype._doEvaluate = function(argList, clock) {
+        var xor = new Xor();
+        var s = xor.evaluate(argList)[0]
+
+        var and = new And();
+        var c = and.evaluate(argList)[0];
+
+        return [s, c];
+    };
+
+    function FullAdder() {
+    }
+    FullAdder.prototype = new EvaluationFunction(3, 3);
+    FullAdder.prototype._doEvaluate = function(argList, clock) {
+        var a = argList[0];
+        var b = argList[1];
+        var cin = argList[2];
+
+        var xor = new Xor();
+        var s = xor.evaluate(argList)[0]
+
+        var and = new And();
+        var or = new Or();
+        var aANDb = and.evaluate([a, b])[0];
+        var aXORb = xor.evaluate([a, b])[0];
+        var d = and.evaluate([cin, aXORb])[0];
+        var cout = or.evaluate([aANDb, d])[0];
+
+        return [s, cout];
+    };
+
+    function DFlipFlop() {
+        this._pastInputs = [TruthValue.UNKNOWN, TruthValue.UNKNOWN];
+        this._pastOutputs = [TruthValue.UNKNOWN, TruthValue.UNKNOWN];
+    }
+    DFlipFlop.prototype = new EvaluationFunction(2, 2);
+    DFlipFlop.prototype._doEvaluate = function(argList) {
+        var data = argList[0];
+        var clock = argList[1];
+        var lastClock = this._pastInputs[1];
+
+        this._pastInputs = argList;
+
+        // Only update data on rising edge
+        if (lastClock === TruthValue.FALSE && clock === TruthValue.TRUE) {
+            var not = new Not();
+            var outputs = [];
+            outputs.push(data);
+            outputs.push(not.evaluate([data])[0]);
+            this._pastOutputs = outputs;
+        }
+
+        return this._pastOutputs.slice(0);
+    };
+
+    function SRLatch() {
+        this._pastInputs = [TruthValue.UNKNOWN, TruthValue.UNKNOWN];
+        this._pastOutputs = [TruthValue.UNKNOWN, TruthValue.UNKNOWN];
+    }
+    SRLatch.prototype = new EvaluationFunction(2, 2);
+    SRLatch.prototype._doEvaluate = function(argList) {
+        var reset = argList[0];
+        var set = argList[1];
+        var lastClock = this._pastInputs[1];
+
+        var outputs;
+
+        if (set === TruthValue.TRUE && reset === TruthValue.TRUE) {
+            outputs = [TruthValue.FALSE, TruthValue.FALSE];
+        } 
+        else if (set === TruthValue.TRUE && reset === TruthValue.FALSE) {
+            outputs = [TruthValue.TRUE, TruthValue.FALSE];
+        } 
+        else if (set === TruthValue.FALSE && reset === TruthValue.TRUE) {
+                outputs = [TruthValue.FALSE, TruthValue.TRUE];
+        } 
+        else if (set === TruthValue.FALSE && reset === TruthValue.FALSE) {
+            var pastQ = this._pastOutputs[0];
+            if (pastQ === TruthValue.UNKNOWN) {
+                outputs = [TruthValue.UNKNOWN, TruthValue.UNKNOWN];
+            } else {
+                outputs = this._pastOutputs;
+            }
+        }
+
+        this._pastInputs = argList;
+        this._pastOutputs = outputs;
+
+        return outputs.slice(0);
+    };
+
     var fs = new FunctionStore();
     fs.put("on", On);
     fs.put("off", Off);
@@ -216,6 +310,11 @@ define([
     fs.put("xor", Xor);
     fs.put("toggle", Toggle);
     fs.put("blinker", Blinker);
+
+    fs.put("ha", HalfAdder);
+    fs.put("fa", FullAdder);
+    fs.put("sr", SRLatch);
+    fs.put("dff", DFlipFlop);
 
 
     return fs;

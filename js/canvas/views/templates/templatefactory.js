@@ -240,6 +240,22 @@ define([
                     fillableObjects.push(circle);
                     break;
 
+                case "blinker":
+                    var widthOverTwo = width / 2;
+                    var heightOverTwo = height / 2;
+                    var path = new fabric.Path(
+                        "M " + widthOverTwo + "," + 0 + 
+                        "L " + 0 + "," + heightOverTwo + 
+                        "L " + widthOverTwo + "," + height + 
+                        "L " + width + "," + heightOverTwo +
+                        "L " + widthOverTwo + "," + 0 +
+                        "L " + 0 + "," + heightOverTwo
+                        );
+                    path.set({left:0, top:0, strokeWidth: this.STROKE_WIDTH, stroke:this.GATE_COLOR, fill:"white"});
+                    objects.push(path);
+                    fillableObjects.push(path);
+                    break;
+
                 default:
                     var rect = new fabric.Rect({
                         left: 0,

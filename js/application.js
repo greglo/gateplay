@@ -152,9 +152,14 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
             var wire = wires.get(id);
             wire.set("truthValue", truthValue);
 
-            var component = components.get(wire.get("targetId"));
-            if (component.get("templateId") === "led") {
-                component.set("truthValue", truthValue);
+            var source = components.get(wire.get("sourceId"));
+            if (source.get("templateId") === "toggle" || source.get("templateId") === "blinker") {
+                source.set("truthValue", truthValue);
+            }
+
+            var target = components.get(wire.get("targetId"));
+            if (target.get("templateId") === "led") {
+                target.set("truthValue", truthValue);
             }
         })
     };
@@ -183,8 +188,10 @@ function(_, fabric, CanvasCircuit, CircuitView, CircuitController, SimCircuit) {
 
         var components = this._canvasModel.get("components");
         _.each(components.models, function(c) {
-            if (c.get("templateId") === "toggle") {
+            if (c.get("templateId") === "toggle" || c.get("templateId") === "blinker") {
                 c.set("truthValue", "True");
+            } else if (c.get("templateId") === "led") {
+                c.set("truthValue", "Unknown");
             }
         });
     };

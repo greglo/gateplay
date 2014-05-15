@@ -117,16 +117,17 @@ define([
         },
 
         _setFillColor: function() {
+            var templateId = this.model.get("templateId");
             var validColor = "white";
             var invalidColor = "red";
 
-            if (this.model.get("templateId") === "on") {
+            if (templateId === "on") {
                 validColor = "green";
                 invalidColor = "darkgreen";
-            } else if (this.model.get("templateId") === "off") {
+            } else if (templateId === "off") {
                 validColor = "red";
                 invalidColor = "red";
-            } else if (this.model.get("templateId") === "toggle" || this.model.get("templateId") === "led") {
+            } else if (templateId === "toggle" || templateId === "led" || templateId === "blinker") {
                 var truthValue = this.model.get("truthValue");
                 if (truthValue === TruthValue.TRUE) {
                     validColor = "green";

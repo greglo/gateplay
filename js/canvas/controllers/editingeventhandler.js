@@ -198,6 +198,7 @@ function(_, Wire) {
         var startObject = this._mouse.startObject;
         this._mouse.objectStartX = startObject.left;
         this._mouse.objectStartY = startObject.top;
+        this._mouse.objectMoved = false;
     }
 
     EditingEventHandler.prototype._moving = function(moveEvent) {

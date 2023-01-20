@@ -3,7 +3,7 @@ require.config({
     baseUrl: 'js',
 
     paths: {
-        jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min',
+        jquery: 'https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min',
         'jquery-ui': 'lib/jquery-ui',
         underscore: 'lib/underscore-min',
         foundation: 'lib/foundation.min',
